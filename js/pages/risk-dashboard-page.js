@@ -7,6 +7,7 @@ import { state } from '../state.js';
 import { RiskService } from '../services/risk-service.js';
 import { TranslationService } from '../services/translation-service.js';
 import { Toast } from '../components/toast.js';
+import { FloodApi } from '../api/flood-api.js';
 
 export class RiskDashboardPage {
   static async render(container) {
@@ -31,6 +32,33 @@ export class RiskDashboardPage {
     const score = riskData.riskScore;
     const color = RiskService.getRiskColor(level);
     const badgeClass = RiskService.getRiskBadgeClass(level);
+
+    // Fetch REAL flood data from backend
+    let liveRiverDischarge = null;
+    try {
+      // Using requested coordinates 26.2, 92.5
+      const floodRes = await FloodApi.getRiverDischarge(26.2, 92.5);
+      if (floodRes && floodRes.data && floodRes.data.river_discharge_m3s !== undefined) {
+        liveRiverDischarge = floodRes.data.river_discharge_m3s;
+      }
+    } catch (e) {
+      console.warn("Failed to load real flood data:", e);
+    }
+
+    // Inject live data into the factors array
+    if (riskData && riskData.factors) {
+      riskData.factors.forEach(factor => {
+        if (factor.name === 'River Discharge' || factor.name === 'नदी जलप्रवाह दर') {
+          if (liveRiverDischarge !== null) {
+            factor.value = liveRiverDischarge;
+            factor.unit = 'm³/s';
+            factor.name = 'River Discharge (Live)';
+            factor.status = 'warning'; // highlight it's live
+            factor.explanation = 'Live river discharge data from Open-Meteo API.';
+          }
+        }
+      });
+    }
 
     // Circumference calculation for circular gauge: r=70 => C = 2 * PI * 70 = ~440
     const circumference = 440;
