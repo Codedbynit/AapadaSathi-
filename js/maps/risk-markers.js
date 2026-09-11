@@ -9,7 +9,12 @@ export class RiskMarkers {
    */
   static createDivIcon(settlement) {
     const level = (settlement.riskLevel || 'LOW').toLowerCase();
-    const score = settlement.riskScore || 0;
+
+    // Display real river discharge from Open-Meteo, not a placeholder score
+    const discharge = settlement.river_discharge_m3s;
+    const displayValue = (discharge !== null && discharge !== undefined)
+      ? Math.round(discharge * 10) / 10
+      : 'N/A';
 
     let markerClass = 'marker-low';
     let size = 32;
@@ -26,8 +31,8 @@ export class RiskMarkers {
     }
 
     const html = `
-      <div class="custom-risk-marker ${markerClass}" style="width:${size}px; height:${size}px; font-size:${size * 0.38}px;" aria-label="${settlement.name}: ${settlement.riskLevel} risk">
-        ${score}
+      <div class="custom-risk-marker ${markerClass}" style="width:${size}px; height:${size}px; font-size:${size * 0.34}px; line-height:1.1; display:flex; flex-direction:column; align-items:center; justify-content:center;" aria-label="${settlement.name}: river discharge ${displayValue} m³/s">
+        <span>${displayValue}</span>
       </div>
     `;
 
@@ -60,7 +65,7 @@ export class RiskMarkers {
       <div class="map-popup-body">
         <div><strong>Hazard:</strong> ${settlement.hazardType || 'Unknown'}</div>
         <div><strong>Risk Score:</strong> ${settlement.riskScore !== undefined ? settlement.riskScore + '/100' : 'N/A'}</div>
-        <div><strong>River Discharge:</strong> ${(() => { const f = settlement.factors?.find(f => f.id === 'f2'); return f ? f.value : 'Unavailable'; })()}</div>
+        <div><strong>River Discharge:</strong> ${settlement.river_discharge_m3s !== null && settlement.river_discharge_m3s !== undefined ? settlement.river_discharge_m3s + ' m³/s' : 'Unavailable'}</div>
         <div><strong>Estimated Lead Time:</strong> <span style="color:#38bdf8; font-weight:bold;">${settlement.leadTimeHours !== undefined ? settlement.leadTimeHours + ' hrs' : 'N/A'}</span></div>
         <div><strong>Confidence:</strong> ${settlement.confidence || 'N/A'}</div>
         <div><strong>Population:</strong> ${settlement.population.toLocaleString()}</div>

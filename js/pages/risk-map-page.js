@@ -14,6 +14,32 @@ export class RiskMapPage {
 
   static async render(container) {
     const settlements = await RiskService.getAllSettlements();
+
+    // Enrich each settlement with real river discharge from Open-Meteo Flood Forecast
+    // Fetch all in parallel; if any fail, that settlement gets river_discharge_m3s = null
+    await Promise.allSettled(
+      settlements.map(async (s) => {
+        try {
+          const res = await fetch(
+            `${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+              ? 'http://localhost:8000/api'
+              : '/api'}/flood?lat=${s.latitude}&lon=${s.longitude}`,
+            { signal: AbortSignal.timeout(5000) }
+          );
+          if (res.ok) {
+            const json = await res.json();
+            s.river_discharge_m3s = (json.river_discharge_m3s !== undefined && json.river_discharge_m3s !== null)
+              ? json.river_discharge_m3s
+              : null;
+          } else {
+            s.river_discharge_m3s = null;
+          }
+        } catch {
+          s.river_discharge_m3s = null;
+        }
+      })
+    );
+
     const activeSettlementId = state.get('activeSettlementId');
     const lang = state.get('activeLanguage') || 'en';
 
