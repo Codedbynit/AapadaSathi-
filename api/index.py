@@ -73,13 +73,9 @@ async def settlement(settlement_id: str):
     return data
 
 @app.get("/api/firms")
-async def firms(bbox: str = ""):
-    """Return FIRMS fire detections for the supplied bounding box.
-    `bbox` format: "min_lat,max_lat,min_lon,max_lon" (comma‑separated).
+async def firms(min_lat: float, max_lat: float, min_lon: float, max_lon: float):
+    """Return NASA FIRMS fire detections for the given geographic bounding box.
+    This endpoint is *only* for fire data – it is NOT used for flood labeling.
     """
-    try:
-        min_lat, max_lat, min_lon, max_lon = map(float, bbox.split(","))
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid bbox format. Use min_lat,max_lat,min_lon,max_lon")
     data = await get_firms_data(min_lat, max_lat, min_lon, max_lon)
     return data

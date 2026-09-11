@@ -39,6 +39,7 @@ async def get_firms_data(min_lat: float, max_lat: float, min_lon: float, max_lon
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail="Failed to fetch data from NASA FIRMS") from exc
 
+    # NASA returns CSV; parse it.
     text = response.text.strip()
     if not text:
         return []
