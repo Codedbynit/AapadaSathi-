@@ -117,7 +117,7 @@ export class ResponseDashboardPage {
                     </td>
                     <td>${s.hazardType}</td>
                     <td>
-                      <span class="status-badge ${RiskService.getRiskBadgeClass(s.riskLevel)}">${s.riskScore}/100</span>
+                      <span class="status-badge ${s.riskLevel ? RiskService.getRiskBadgeClass(s.riskLevel) : 'badge-neutral'}">${s.riskScore !== undefined ? s.riskScore + '/100' : 'N/A'}</span>
                     </td>
                     <td><strong style="color:#0284c7;">${s.leadTimeHours} hrs</strong></td>
                     <td>${s.population.toLocaleString()}</td>

@@ -61,8 +61,8 @@ export class AlertsPage {
       return `
         <div class="glass-panel state-container">
           <div class="state-icon"><i class="fa-solid fa-bell-slash"></i></div>
-          <h3 class="state-title">${lang === 'hi' ? 'कोई सक्रिय चेतावनी नहीं मिली' : 'No Active Warnings Match Your Filter'}</h3>
-          <p class="state-desc">${lang === 'hi' ? 'इस श्रेणी के सभी हाइड्रोलॉजिकल स्तर सुरक्षित सीमा के भीतर हैं।' : 'All monitored hydrological levels in this category are within nominal threshold parameters.'}</p>
+          <h3 class="state-title">${lang === 'hi' ? 'कोई सक्रिय चेतावनी उपलब्ध नहीं है' : 'No Active Warnings Available'}</h3>
+          <p class="state-desc">${lang === 'hi' ? 'जोखिम पूर्वानुमान और चेतावनी प्रणाली अभी उपलब्ध नहीं है।' : 'Risk prediction and alert generation are not available yet.'}</p>
         </div>
       `;
     }

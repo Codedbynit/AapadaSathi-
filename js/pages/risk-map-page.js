@@ -64,12 +64,12 @@ export class RiskMapPage {
                     <h4 style="color:#0f2b48;">${s.name}</h4>
                     <div style="font-size:0.75rem; color:#64748b;">${s.district}, ${s.state}</div>
                   </div>
-                  <span class="status-badge ${RiskService.getRiskBadgeClass(s.riskLevel)}">${s.riskLevel}</span>
+                  <span class="status-badge ${s.riskLevel ? RiskService.getRiskBadgeClass(s.riskLevel) : 'badge-neutral'}">${s.riskLevel || 'Unavailable'}</span>
                 </div>
                 <div style="font-size:0.85rem; color:#334155;">
-                  <div><strong>${TranslationService.t('hazardLabel', lang)}</strong> ${s.hazardType}</div>
-                  <div><strong>${TranslationService.t('riskScore', lang)}:</strong> ${s.riskScore}/100</div>
-                  <div><strong>${TranslationService.t('leadTimeLabel', lang)}</strong> ${s.leadTimeHours} hrs</div>
+                  <div><strong>${TranslationService.t('hazardLabel', lang)}</strong> ${s.hazardType || 'Unknown'}</div>
+                  <div><strong>${TranslationService.t('riskScore', lang)}:</strong> ${s.riskScore !== undefined ? s.riskScore + '/100' : 'N/A'}</div>
+                  <div><strong>${TranslationService.t('leadTimeLabel', lang)}</strong> ${s.leadTimeHours !== undefined ? s.leadTimeHours + ' hrs' : 'N/A'}</div>
                   <div><strong>${TranslationService.t('populationLabel', lang)}</strong> ${s.population.toLocaleString()}</div>
                 </div>
                 <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">

@@ -375,7 +375,7 @@ export class HomePage {
             <strong style="color:#0f2b48;">${m.name}</strong>
             <div style="font-size:0.75rem; color:#64748b;">${m.district}, ${m.state}</div>
           </div>
-          <span class="status-badge ${RiskService.getRiskBadgeClass(m.riskLevel)}">${m.riskLevel}</span>
+          <span class="status-badge ${m.riskLevel ? RiskService.getRiskBadgeClass(m.riskLevel) : 'badge-neutral'}">${m.riskLevel || 'Unavailable'}</span>
         </div>
       `).join('');
 

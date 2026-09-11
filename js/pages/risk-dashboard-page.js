@@ -28,11 +28,6 @@ export class RiskDashboardPage {
     const settlements = await RiskService.getAllSettlements();
     const riskData = await RiskService.getRisk(settlementId);
 
-    const level = riskData.riskLevel;
-    const score = riskData.riskScore;
-    const color = RiskService.getRiskColor(level);
-    const badgeClass = RiskService.getRiskBadgeClass(level);
-
     // Fetch REAL flood data from backend
     let liveRiverDischarge = null;
     try {
@@ -92,6 +87,11 @@ export class RiskDashboardPage {
       `;
       return;
     }
+
+    const level = riskData.riskLevel;
+    const score = riskData.riskScore;
+    const color = RiskService.getRiskColor(level);
+    const badgeClass = RiskService.getRiskBadgeClass(level);
 
     // Inject live data into the factors array
     if (riskData && riskData.factors) {
