@@ -121,32 +121,54 @@
   font-weight: bold;
   cursor: pointer;
   transition: transform var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.custom-risk-marker:hover {
+  transform: scale(1.15);
+  z-index: 1000 !important;
 }
 
 .marker-critical {
   background: #dc2626;
-  border: 2.5px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 0 16px rgba(220, 38, 38, 0.6);
   animation: pulseRadar 2s infinite;
 }
 
 .marker-high {
   background: #ea580c;
-  border: 2.5px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 0 12px rgba(234, 88, 12, 0.5);
 }
 
 .marker-moderate {
   background: #d97706;
-  border: 2.5px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 0 10px rgba(217, 119, 6, 0.4);
 }
 
 .marker-low {
   background: #059669;
-  border: 2.5px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 0 8px rgba(5, 150, 105, 0.4);
+}
+
+/* Discharge-only marker (no ML risk score yet) — solid teal */
+.marker-discharge {
+  background: #0891b2;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 14px rgba(8, 145, 178, 0.55);
+  font-size: 20px !important;
+}
+
+/* No data at all — visible grey */
+.marker-nodata {
+  background: #64748b;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 8px rgba(100, 116, 139, 0.4);
+  font-size: 18px !important;
 }
 
 /* Custom Leaflet Popup - Clean Light Theme */

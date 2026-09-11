@@ -10,35 +10,44 @@ export class RiskMarkers {
   static createDivIcon(settlement) {
     const level = (settlement.riskLevel || 'LOW').toLowerCase();
 
-    // Display risk score (0-100) for the settlement
+    // Display value inside the marker bubble
+    // For riskScore: show the score number
+    // For discharge-only: show a wave icon (no long numbers inside the dot)
+    // For no data: show "?" so marker is still identifiable
     const displayValue = (settlement.riskScore !== undefined && settlement.riskScore !== null)
       ? settlement.riskScore
       : (settlement.river_discharge_m3s !== undefined && settlement.river_discharge_m3s !== null)
-        ? `${settlement.river_discharge_m3s} m³/s`
-        : 'Unavailable';
+        ? '\u{1F30A}'
+        : '?';
 
     // Determine marker appearance
     let markerClass = 'marker-low';
-    let size = 32;
+    let size = 44; // larger default for better visibility
     if (settlement.riskScore !== undefined && settlement.riskScore !== null) {
       // Existing risk level determines color
       const level = (settlement.riskLevel || 'LOW').toLowerCase();
-      if (level === 'critical') { markerClass = 'marker-critical'; size = 38; }
-      else if (level === 'high') { markerClass = 'marker-high'; size = 34; }
-      else if (level === 'moderate') { markerClass = 'marker-moderate'; size = 30; }
-      else { markerClass = 'marker-low'; size = 32; }
+      if (level === 'critical') { markerClass = 'marker-critical'; size = 48; }
+      else if (level === 'high') { markerClass = 'marker-high'; size = 44; }
+      else if (level === 'moderate') { markerClass = 'marker-moderate'; size = 40; }
+      else { markerClass = 'marker-low'; size = 44; }
     } else if (settlement.river_discharge_m3s !== undefined && settlement.river_discharge_m3s !== null) {
-      // Discharge data – use a dedicated visual style
+      // Discharge-only data – use a solid teal marker so it's clearly visible
       markerClass = 'marker-discharge';
-      size = 36;
+      size = 48;
     } else {
-      // No data – keep default low style
-      markerClass = 'marker-low';
-      size = 32;
+      // No data – use grey marker so it's still visible on the map
+      markerClass = 'marker-nodata';
+      size = 44;
     }
 
+    const fontSize = (displayValue === String.fromCodePoint(0x1F30A) || displayValue === '?')
+      ? Math.round(size * 0.42)
+      : Math.round(size * 0.34);
+
     const html = `
-      <div class="custom-risk-marker ${markerClass}" style="width:${size}px; height:${size}px; font-size:${size * 0.34}px; line-height:1.1; display:flex; flex-direction:column; align-items:center; justify-content:center;" aria-label="${settlement.name}: river discharge ${displayValue} m³/s">
+      <div class="custom-risk-marker ${markerClass}"
+           style="width:${size}px; height:${size}px; font-size:${fontSize}px; line-height:1;"
+           aria-label="${settlement.name}">
         <span>${displayValue}</span>
       </div>
     `;
