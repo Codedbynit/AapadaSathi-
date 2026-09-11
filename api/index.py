@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.services.weather import get_weather_data
 from api.services.flood import get_flood_data
 from api.services.settlements import init_db, get_all_settlements, get_settlement
+from api.services.firms import get_firms_data
 
 app = FastAPI(title="SetuAlert Backend")
 
@@ -69,4 +70,16 @@ async def settlement(settlement_id: str):
     data = get_settlement(settlement_id)
     if not data:
         raise HTTPException(status_code=404, detail="Settlement not found")
+    return data
+
+@app.get("/api/firms")
+async def firms(bbox: str = ""):
+    """Return FIRMS fire detections for the supplied bounding box.
+    `bbox` format: "min_lat,max_lat,min_lon,max_lon" (comma‑separated).
+    """
+    try:
+        min_lat, max_lat, min_lon, max_lon = map(float, bbox.split(","))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid bbox format. Use min_lat,max_lat,min_lon,max_lon")
+    data = await get_firms_data(min_lat, max_lat, min_lon, max_lon)
     return data
