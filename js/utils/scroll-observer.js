@@ -7,6 +7,7 @@
 
 export class ScrollObserver {
   static observer = null;
+  static handleScroll = null;
 
   static init() {
     if (this.observer) {
@@ -17,17 +18,37 @@ export class ScrollObserver {
     const options = {
       root: null,
       rootMargin: '0px 0px -40px 0px',
-      threshold: 0.08
+      threshold: 0.1
     };
 
     this.observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          // If page is at scroll top (window.scrollY < 80), do not reveal below-hero status cards until scroll starts!
+          if (window.scrollY < 80 && entry.target.classList.contains('status-stat-card')) {
+            return;
+          }
           entry.target.classList.add('is-revealed');
           obs.unobserve(entry.target);
         }
       });
     }, options);
+
+    if (this.handleScroll) {
+      window.removeEventListener('scroll', this.handleScroll);
+    }
+    this.handleScroll = () => {
+      if (window.scrollY > 40) {
+        document.querySelectorAll('.status-stat-card.scroll-reveal:not(.is-revealed)').forEach(el => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight - 20) {
+            el.classList.add('is-revealed');
+            if (this.observer) this.observer.unobserve(el);
+          }
+        });
+      }
+    };
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
 
     this.refresh();
   }
@@ -55,9 +76,9 @@ export class ScrollObserver {
       const staggerIndex = (index % 4) + 1;
       el.classList.add(`scroll-stagger-${staggerIndex}`);
 
-      // If user has already scrolled past, reveal immediately.
-      // If user is at the top (scrollY < 40), keep them hidden and strictly observe on scroll!
-      if (window.scrollY > 150) {
+      // If user has already scrolled past, reveal immediately if within view.
+      // If user is at the top (scrollY < 120), keep them hidden and strictly observe on scroll!
+      if (window.scrollY > 120) {
         const rect = el.getBoundingClientRect();
         if (rect.top < window.innerHeight) {
           el.classList.add('is-revealed');

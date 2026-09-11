@@ -1,6 +1,6 @@
 /**
  * AapadaSathi Shared Header Component
- * Streamlined public interface - 100% focused on resident safety and fast evacuation.
+ * Includes dedicated Admin Portal button and strictly English / Hindi language support.
  */
 
 import { state } from '../state.js';
@@ -11,7 +11,7 @@ export class HeaderComponent {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const currentLang = state.get('activeLanguage');
+    const currentLang = state.get('activeLanguage') || 'en';
     const currentRoute = state.get('activeRoute') || '#home';
 
     container.innerHTML = `
@@ -24,11 +24,11 @@ export class HeaderComponent {
             </div>
             <div class="brand-text-group">
               <span class="brand-name">AapadaSathi</span>
-              <span class="brand-tagline" data-i18n="tagline">${TranslationService.t('tagline', currentLang)}</span>
+              <span class="brand-tagline">${TranslationService.t('tagline', currentLang)}</span>
             </div>
           </a>
 
-          <!-- Desktop Navigation - Resident Public Focus -->
+          <!-- Desktop Navigation - Clean, Single Line -->
           <nav class="desktop-nav" aria-label="Main Navigation">
             <a href="#home" class="nav-link ${currentRoute === '#home' ? 'active' : ''}" data-nav="home">
               <i class="fa-solid fa-house"></i> <span>${TranslationService.t('home', currentLang)}</span>
@@ -47,20 +47,25 @@ export class HeaderComponent {
             </a>
           </nav>
 
-          <!-- Header Actions (Emergency Hotline, Language Selector, Mobile Hamburger) -->
+          <!-- Header Actions: Admin Button, Emergency Call, Language Selector (EN/HI) -->
           <div class="header-actions">
-            <!-- Emergency Quick Hotline Badge -->
-            <a href="tel:112" class="header-hotline-badge" title="National Emergency Helpline">
-              <i class="fa-solid fa-phone-volume"></i>
-              <span>Emergency <strong>112</strong></span>
+            <!-- Dedicated Admin Portal Button -->
+            <a href="#response-dashboard" class="header-admin-btn ${currentRoute === '#response-dashboard' ? 'active' : ''}" id="btn-header-admin" title="Admin Incident Command Portal">
+              <i class="fa-solid fa-lock"></i>
+              <span>${TranslationService.t('adminPortal', currentLang)}</span>
             </a>
 
-            <!-- Language Switcher -->
+            <!-- Emergency Quick Hotline Badge -->
+            <a href="tel:112" class="header-hotline-badge" title="National Emergency Helpline: 112">
+              <i class="fa-solid fa-phone-volume"></i>
+              <span>${TranslationService.t('emergencyHelpline', currentLang)}</span>
+            </a>
+
+            <!-- Language Switcher: English and Hindi Only -->
             <div class="lang-selector">
               <select class="lang-select" id="header-lang-select" aria-label="Select Language">
                 <option value="en" ${currentLang === 'en' ? 'selected' : ''}>English</option>
-                <option value="hi" ${currentLang === 'hi' ? 'selected' : ''}>हिन्दी</option>
-                <option value="as" ${currentLang === 'as' ? 'selected' : ''}>অসমীয়া</option>
+                <option value="hi" ${currentLang === 'hi' ? 'selected' : ''}>हिन्दी (Hindi)</option>
               </select>
             </div>
 
@@ -103,17 +108,15 @@ export class HeaderComponent {
             <a href="#alerts" class="mobile-nav-link ${currentRoute === '#alerts' ? 'active' : ''}">
               <i class="fa-solid fa-triangle-exclamation"></i> ${TranslationService.t('alerts', currentLang)}
             </a>
+            <a href="#response-dashboard" class="mobile-nav-link ${currentRoute === '#response-dashboard' ? 'active' : ''}">
+              <i class="fa-solid fa-lock"></i> ${TranslationService.t('adminPortal', currentLang)}
+            </a>
           </nav>
 
           <div style="margin-top:auto; padding-top:1.5rem; border-top:1px solid #e2e8f0;">
             <a href="tel:112" class="btn btn-danger btn-sm" style="width:100%; justify-content:center; margin-bottom:1rem;">
-              <i class="fa-solid fa-phone"></i> National Emergency: 112
+              <i class="fa-solid fa-phone"></i> ${TranslationService.t('emergencyHelplineFull', currentLang)}
             </a>
-            <div style="text-align:center;">
-              <a href="#response-dashboard" class="official-portal-link" style="font-size:0.775rem; color:#64748b; text-decoration:none;">
-                <i class="fa-solid fa-lock"></i> Official Responder Portal
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -141,7 +144,7 @@ export class HeaderComponent {
       drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
     }
 
-    const drawerLinks = document.querySelectorAll('.mobile-nav-link, .official-portal-link');
+    const drawerLinks = document.querySelectorAll('.mobile-nav-link');
     drawerLinks.forEach(link => {
       link.addEventListener('click', () => {
         if (drawer) drawer.classList.remove('open');
@@ -150,7 +153,7 @@ export class HeaderComponent {
   }
 
   static updateActiveLinks(route) {
-    document.querySelectorAll('.nav-link, .mobile-nav-link, .bottom-nav-item').forEach(link => {
+    document.querySelectorAll('.nav-link, .mobile-nav-link, .bottom-nav-item, .header-admin-btn').forEach(link => {
       const href = link.getAttribute('href');
       if (href === route) {
         link.classList.add('active');

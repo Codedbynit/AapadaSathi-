@@ -7,6 +7,7 @@ import { RiskService } from '../services/risk-service.js';
 import { MapController } from '../maps/map-controller.js';
 import { RiskMarkers } from '../maps/risk-markers.js';
 import { Toast } from '../components/toast.js';
+import { TranslationService } from '../services/translation-service.js';
 
 export class RiskMapPage {
   static mapController = null;
@@ -14,6 +15,7 @@ export class RiskMapPage {
   static async render(container) {
     const settlements = await RiskService.getAllSettlements();
     const activeSettlementId = state.get('activeSettlementId');
+    const lang = state.get('activeLanguage') || 'en';
 
     container.innerHTML = `
       <div class="map-page-wrapper fade-in">
@@ -21,21 +23,21 @@ export class RiskMapPage {
         <div class="glass-panel map-toolbar">
           <div class="map-filters-group">
             <span style="font-size:0.8rem; font-weight:700; color:var(--color-accent); text-transform:uppercase; margin-right:0.25rem;">
-              <i class="fa-solid fa-filter"></i> Filters:
+              <i class="fa-solid fa-filter"></i> ${TranslationService.t('filters', lang)}
             </span>
-            <button class="filter-chip active" data-filter="ALL">All Hazards</button>
-            <button class="filter-chip" data-filter="FLOOD">Flooding</button>
-            <button class="filter-chip" data-filter="EROSION">Erosion</button>
-            <button class="filter-chip" data-filter="CRITICAL_ONLY">Critical Only</button>
+            <button class="filter-chip active" data-filter="ALL">${TranslationService.t('allHazards', lang)}</button>
+            <button class="filter-chip" data-filter="FLOOD">${TranslationService.t('flooding', lang)}</button>
+            <button class="filter-chip" data-filter="EROSION">${TranslationService.t('erosion', lang)}</button>
+            <button class="filter-chip" data-filter="CRITICAL_ONLY">${TranslationService.t('criticalOnly', lang)}</button>
           </div>
 
           <div style="display:flex; align-items:center; gap:0.75rem;">
             <!-- View Mode Switcher (Map vs Accessible List) -->
             <button class="btn btn-secondary btn-sm" id="btn-toggle-map-view">
-              <i class="fa-solid fa-list"></i> <span id="view-toggle-text">List View</span>
+              <i class="fa-solid fa-list"></i> <span id="view-toggle-text">${TranslationService.t('listView', lang)}</span>
             </button>
             <div class="freshness-tag" style="margin:0;">
-              <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i> Realtime Simulation
+              <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i> ${TranslationService.t('realtimeSimulation', lang)}
             </div>
           </div>
         </div>
@@ -46,11 +48,11 @@ export class RiskMapPage {
 
           <!-- Floating Map Legend -->
           <div class="map-legend-box" id="map-legend">
-            <div class="legend-title">Risk Severity Scale</div>
-            <div class="legend-item"><span class="risk-dot risk-dot-critical"></span> Critical (80-100)</div>
-            <div class="legend-item"><span class="risk-dot risk-dot-high"></span> High (60-79)</div>
-            <div class="legend-item"><span class="risk-dot risk-dot-moderate"></span> Moderate (40-59)</div>
-            <div class="legend-item"><span class="risk-dot risk-dot-low"></span> Low (&lt;40)</div>
+            <div class="legend-title">${TranslationService.t('riskSeverityScale', lang)}</div>
+            <div class="legend-item"><span class="risk-dot risk-dot-critical"></span> ${TranslationService.t('criticalScale', lang)}</div>
+            <div class="legend-item"><span class="risk-dot risk-dot-high"></span> ${TranslationService.t('highScale', lang)}</div>
+            <div class="legend-item"><span class="risk-dot risk-dot-moderate"></span> ${TranslationService.t('moderateScale', lang)}</div>
+            <div class="legend-item"><span class="risk-dot risk-dot-low"></span> ${TranslationService.t('lowScale', lang)}</div>
           </div>
 
           <!-- Fallback List View (Accessible Text Mode) -->
@@ -59,24 +61,24 @@ export class RiskMapPage {
               <div class="glass-panel" style="padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                   <div>
-                    <h4 style="color:#ffffff;">${s.name}</h4>
-                    <div style="font-size:0.75rem; color:#94a3b8;">${s.district}, ${s.state}</div>
+                    <h4 style="color:#0f2b48;">${s.name}</h4>
+                    <div style="font-size:0.75rem; color:#64748b;">${s.district}, ${s.state}</div>
                   </div>
                   <span class="status-badge ${RiskService.getRiskBadgeClass(s.riskLevel)}">${s.riskLevel}</span>
                 </div>
-                <div style="font-size:0.85rem; color:#cbd5e1;">
-                  <div><strong>Hazard:</strong> ${s.hazardType}</div>
-                  <div><strong>Risk Score:</strong> ${s.riskScore}/100</div>
-                  <div><strong>Lead Time:</strong> ${s.leadTimeHours} hrs</div>
-                  <div><strong>Population:</strong> ${s.population.toLocaleString()}</div>
+                <div style="font-size:0.85rem; color:#334155;">
+                  <div><strong>${TranslationService.t('hazardLabel', lang)}</strong> ${s.hazardType}</div>
+                  <div><strong>${TranslationService.t('riskScore', lang)}:</strong> ${s.riskScore}/100</div>
+                  <div><strong>${TranslationService.t('leadTimeLabel', lang)}</strong> ${s.leadTimeHours} hrs</div>
+                  <div><strong>${TranslationService.t('populationLabel', lang)}</strong> ${s.population.toLocaleString()}</div>
                 </div>
                 <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
                   <button class="btn btn-primary btn-sm fallback-view-btn" data-id="${s.id}" style="flex:1;">
-                    View Risk
+                    ${TranslationService.t('viewRiskBtn', lang)}
                   </button>
                   ${s.evacuationRequired ? `
                     <button class="btn btn-danger btn-sm fallback-route-btn" data-id="${s.id}" style="flex:1;">
-                      Safe Route
+                      ${TranslationService.t('safeRouteBtn', lang)}
                     </button>
                   ` : ''}
                 </div>

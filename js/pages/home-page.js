@@ -1,5 +1,6 @@
 /**
- * Page Controller: Home / Landing - Two Column Hero & Light Mode
+ * Page Controller: Home / Landing
+ * Complete English & Hindi Localization Support
  */
 
 import { state } from '../state.js';
@@ -10,7 +11,7 @@ import { Toast } from '../components/toast.js';
 
 export class HomePage {
   static async render(container) {
-    const lang = state.get('activeLanguage');
+    const lang = state.get('activeLanguage') || 'en';
     const settlements = await RiskService.getAllSettlements();
     const alerts = await AlertService.getAlerts();
 
@@ -26,11 +27,11 @@ export class HomePage {
           <div class="hero-left">
             <div class="hero-badge">
               <i class="fa-solid fa-satellite-dish"></i>
-              <span>AI-Assisted Multi-Sensor Early Warnings</span>
+              <span>${TranslationService.t('aiBadge', lang)}</span>
             </div>
 
             <h1 class="hero-title">
-              Know the risk <span class="hero-highlight">before it reaches you.</span>
+              ${TranslationService.t('heroTitlePrefix', lang)} <span class="hero-highlight">${TranslationService.t('heroTitleHighlight', lang)}</span>
             </h1>
 
             <p class="hero-subtitle">
@@ -62,7 +63,7 @@ export class HomePage {
                 <i class="fa-solid fa-map-location-dot"></i> ${TranslationService.t('viewMapBtn', lang)}
               </a>
               <a href="#safe-route" class="btn btn-danger">
-                <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRoute', lang)}
+                <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRouteBtn', lang)}
               </a>
             </div>
 
@@ -70,15 +71,15 @@ export class HomePage {
             <div class="hero-trust-strip">
               <div class="hero-trust-item">
                 <i class="fa-solid fa-phone" style="color:#dc2626;"></i>
-                <span>Helpline: <strong>112</strong> / <strong>1070</strong></span>
+                <span>${TranslationService.t('emergencyHotlineTag', lang)}</span>
               </div>
               <div class="hero-trust-item">
                 <i class="fa-solid fa-tower-broadcast"></i>
-                <span>CWC &amp; IMD Telemetry</span>
+                <span>${TranslationService.t('sensorMeshTag', lang)}</span>
               </div>
               <div class="hero-trust-item">
                 <i class="fa-solid fa-circle-check" style="color:#059669;"></i>
-                <span>Verified Evacuation Corridors</span>
+                <span>${TranslationService.t('verifiedCorridorsTag', lang)}</span>
               </div>
             </div>
           </div>
@@ -89,13 +90,13 @@ export class HomePage {
               <div class="radar-card-header">
                 <div>
                   <span class="status-badge badge-critical" style="margin-bottom:0.4rem;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Live Alert
+                    <i class="fa-solid fa-triangle-exclamation"></i> ${TranslationService.t('liveAlertBadge', lang)}
                   </span>
-                  <div class="radar-location-title">Mikirpara Settlement</div>
-                  <div class="radar-location-sub">Majuli Basin, Assam &bull; Ward 4 Riverbank</div>
+                  <div class="radar-location-title">${lang === 'hi' ? 'मिकिरपारा बस्ती' : 'Mikirpara Settlement'}</div>
+                  <div class="radar-location-sub">${lang === 'hi' ? 'माजुली बेसिन, असम • वार्ड 4 नदी तट' : 'Majuli Basin, Assam • Ward 4 Riverbank'}</div>
                 </div>
                 <span class="status-badge badge-neutral" style="font-size:0.75rem;">
-                  <i class="fa-solid fa-clock"></i> -6.5h Lead
+                  <i class="fa-solid fa-clock"></i> -6.5h ${TranslationService.t('leadTimePrefix', lang)}
                 </span>
               </div>
 
@@ -106,42 +107,42 @@ export class HomePage {
                   <span class="radar-dial-lbl">Score</span>
                 </div>
                 <div>
-                  <div style="font-size:1.05rem; font-weight:800; color:#991b1b;">CRITICAL FLOOD RISK</div>
+                  <div style="font-size:1.05rem; font-weight:800; color:#991b1b;">${TranslationService.t('criticalFloodRisk', lang)}</div>
                   <div style="font-size:0.8rem; color:#7f1d1d; line-height:1.4; margin-top:2px;">
-                    Crest surge projected within ~6.5 hours. Evacuation corridor to Model Higher Secondary is active.
+                    ${TranslationService.t('heroCardDesc', lang)}
                   </div>
                 </div>
               </div>
 
-              <!-- Sensor Metrics List -->
+              <!-- Sensor Metrics List (Numerical Values Kept Exact) -->
               <div class="radar-metrics-list">
                 <div class="radar-metric-row">
-                  <span class="radar-metric-label"><i class="fa-solid fa-cloud-showers-heavy"></i> 24h Rainfall:</span>
+                  <span class="radar-metric-label"><i class="fa-solid fa-cloud-showers-heavy"></i> ${TranslationService.t('rainfall24h', lang)}</span>
                   <span class="radar-metric-val" style="color:#dc2626;">142 mm (+340%)</span>
                 </div>
                 <div class="radar-metric-row">
-                  <span class="radar-metric-label"><i class="fa-solid fa-water"></i> Nematighat Gauge:</span>
-                  <span class="radar-metric-val" style="color:#dc2626;">+1.45m over danger</span>
+                  <span class="radar-metric-label"><i class="fa-solid fa-water"></i> ${TranslationService.t('riverGaugeTag', lang)}</span>
+                  <span class="radar-metric-val" style="color:#dc2626;">+1.45m ${TranslationService.t('overDangerMark', lang)}</span>
                 </div>
                 <div class="radar-metric-row">
-                  <span class="radar-metric-label"><i class="fa-solid fa-shield-halved"></i> Nearest Safe Shelter:</span>
+                  <span class="radar-metric-label"><i class="fa-solid fa-shield-halved"></i> ${TranslationService.t('nearestSafeShelterTag', lang)}</span>
                   <span class="radar-metric-val" style="color:#059669;">Model Higher Secondary (4.2 km)</span>
                 </div>
               </div>
 
               <div style="display:flex; gap:0.65rem;">
                 <a href="#safe-route" class="btn btn-emergency" style="flex:1; padding:0.65rem 1rem; font-size:0.875rem;">
-                  <i class="fa-solid fa-person-walking-arrow-right"></i> Safe Route Map
+                  <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRouteMapBtn', lang)}
                 </a>
                 <a href="#risk-dashboard" class="btn btn-secondary" style="flex:1; padding:0.65rem 1rem; font-size:0.875rem;">
-                  <i class="fa-solid fa-chart-line"></i> Full Analysis
+                  <i class="fa-solid fa-chart-line"></i> ${TranslationService.t('fullAnalysisBtn', lang)}
                 </a>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Quick Status Strip -->
+        <!-- Quick Status Strip: Stays strictly hidden until user scrolls down -->
         <section class="quick-status-grid">
           <div class="glass-panel status-stat-card">
             <div class="stat-icon-wrapper">
@@ -158,7 +159,7 @@ export class HomePage {
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number" style="color:#dc2626;">4 Active</div>
+              <div class="stat-number" style="color:#dc2626;">4 ${TranslationService.t('activeLabel', lang)}</div>
               <div class="stat-label">${TranslationService.t('activeWarnings', lang)}</div>
             </div>
           </div>
@@ -178,7 +179,7 @@ export class HomePage {
               <i class="fa-solid fa-network-wired"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number" style="color:#059669;">5 of 5 Live</div>
+              <div class="stat-number" style="color:#059669;">5 ${TranslationService.t('liveSourcesLabel', lang)}</div>
               <div class="stat-label">${TranslationService.t('dataHealth', lang)}</div>
             </div>
           </div>
@@ -187,9 +188,9 @@ export class HomePage {
         <!-- How It Works Section -->
         <section class="workflow-section">
           <div class="section-header">
-            <span class="hero-badge"><i class="fa-solid fa-diagram-project"></i> Operational Framework</span>
-            <h2 class="section-title">How AapadaSathi Works</h2>
-            <p>From multi-satellite telemetry to settlement-level decision support in under two minutes.</p>
+            <span class="hero-badge"><i class="fa-solid fa-diagram-project"></i> ${TranslationService.t('operationalFramework', lang)}</span>
+            <h2 class="section-title">${TranslationService.t('howItWorksTitle', lang)}</h2>
+            <p>${TranslationService.t('howItWorksSubtitle', lang)}</p>
           </div>
 
           <div class="workflow-steps-grid">
@@ -227,10 +228,12 @@ export class HomePage {
         <section class="alerts-preview-section">
           <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem;">
             <div>
-              <span class="hero-badge" style="border-color:#fecaca; background:#fef2f2; color:#dc2626;"><i class="fa-solid fa-bell"></i> Live Feed</span>
-              <h2>Urgent Warnings in Monitored Basin</h2>
+              <span class="hero-badge" style="border-color:#fecaca; background:#fef2f2; color:#dc2626;">
+                <i class="fa-solid fa-bell"></i> ${TranslationService.t('liveFeedBadge', lang)}
+              </span>
+              <h2>${TranslationService.t('urgentWarningsTitle', lang)}</h2>
             </div>
-            <a href="#alerts" class="btn btn-secondary btn-sm">View All Alerts <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="#alerts" class="btn btn-secondary btn-sm">${TranslationService.t('viewAllAlertsBtn', lang)} <i class="fa-solid fa-arrow-right"></i></a>
           </div>
 
           <div class="alerts-preview-list">
@@ -242,22 +245,22 @@ export class HomePage {
                 <div class="alert-content-col">
                   <div class="alert-title-row">
                     <span class="status-badge ${RiskService.getRiskBadgeClass(alert.severity)}">${alert.severity}</span>
-                    <h3 class="alert-title">${alert.title}</h3>
+                    <h3 class="alert-title">${lang === 'hi' ? (alert.severity === 'CRITICAL' ? 'अति गंभीर बाढ़ चेतावनी - सुरक्षित स्थान पर जाएं' : alert.title) : alert.title}</h3>
                   </div>
-                  <p class="alert-description">${alert.message}</p>
+                  <p class="alert-description">${lang === 'hi' ? (alert.severity === 'CRITICAL' ? 'जलस्तर अगले 6.5 घंटे में सुरक्षा बांध को पार करने का अनुमान है। उत्तरी तटबंध निकासी गलियारे का अनुसरण करें।' : alert.message) : alert.message}</p>
                   <div class="alert-meta-row">
-                    <span><i class="fa-solid fa-location-dot"></i> ${alert.settlementName}</span>
-                    <span><i class="fa-solid fa-clock"></i> Expected: ${alert.expectedImpactAt}</span>
-                    <span><i class="fa-solid fa-hourglass"></i> Lead Time: <strong>${alert.leadTimeHours}h</strong></span>
+                    <span><i class="fa-solid fa-location-dot"></i> ${lang === 'hi' ? (alert.settlementName.replace('Settlement', 'बस्ती')) : alert.settlementName}</span>
+                    <span><i class="fa-solid fa-clock"></i> ${TranslationService.t('expectedLabel', lang)} ${alert.expectedImpactAt}</span>
+                    <span><i class="fa-solid fa-hourglass"></i> ${TranslationService.t('leadTimeLabel', lang)} <strong>${alert.leadTimeHours}h</strong></span>
                   </div>
                 </div>
                 <div class="alert-actions-col">
                   <button class="btn btn-primary btn-sm alert-view-action" data-settlement-id="${alert.settlementId}">
-                    View Risk
+                    ${TranslationService.t('viewRiskBtn', lang)}
                   </button>
                   ${alert.evacuationRequired ? `
                     <button class="btn btn-danger btn-sm alert-route-action" data-settlement-id="${alert.settlementId}">
-                      <i class="fa-solid fa-person-walking-arrow-right"></i> Safe Route
+                      <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRouteBtn', lang)}
                     </button>
                   ` : ''}
                 </div>
@@ -269,34 +272,57 @@ export class HomePage {
         <!-- Trust & Multi-Source Fusion Section -->
         <section style="padding:3rem 0;">
           <div class="section-header">
-            <span class="hero-badge"><i class="fa-solid fa-shield-heart"></i> Multi-Source Fusion</span>
-            <h2>Transparent Geospatial Intelligence</h2>
-            <p>Designed for humanitarian transparency, accessibility, and operational reliability.</p>
+            <span class="hero-badge"><i class="fa-solid fa-shield-heart"></i> ${TranslationService.t('multiSourceFusionBadge', lang)}</span>
+            <h2>${TranslationService.t('trustSectionTitle', lang)}</h2>
+            <p>${TranslationService.t('trustSectionSubtitle', lang)}</p>
           </div>
 
           <div class="trust-grid">
             <div class="glass-panel trust-card">
               <i class="fa-solid fa-network-wired trust-icon"></i>
-              <h4>Multi-Sensor Fusion</h4>
-              <p>Fuses Copernicus SAR radar imagery, IMD Doppler radars, and river discharge gauges to bypass cloud obstruction.</p>
+              <h4>${TranslationService.t('trustCard1Title', lang)}</h4>
+              <p>${TranslationService.t('trustCard1Desc', lang)}</p>
             </div>
             <div class="glass-panel trust-card">
               <i class="fa-solid fa-house-chimney trust-icon"></i>
-              <h4>Settlement-Scale Granularity</h4>
-              <p>Moving beyond coarse district-level warnings down to village and ward topological flood exposure.</p>
+              <h4>${TranslationService.t('trustCard2Title', lang)}</h4>
+              <p>${TranslationService.t('trustCard2Desc', lang)}</p>
             </div>
             <div class="glass-panel trust-card">
               <i class="fa-solid fa-language trust-icon"></i>
-              <h4>Actionable Native Guidance</h4>
-              <p>Translates complex millimeter rainfall metrics into immediate plain-language steps in English, Hindi, and Assamese.</p>
+              <h4>${TranslationService.t('trustCard3Title', lang)}</h4>
+              <p>${TranslationService.t('trustCard3Desc', lang)}</p>
             </div>
             <div class="glass-panel trust-card">
               <i class="fa-solid fa-route trust-icon"></i>
-              <h4>Verified Evacuation Corridors</h4>
-              <p>Directs residents toward high-ground shelters along elevated paths, explicitly avoiding submerged road breaches.</p>
+              <h4>${TranslationService.t('trustCard4Title', lang)}</h4>
+              <p>${TranslationService.t('trustCard4Desc', lang)}</p>
             </div>
           </div>
         </section>
+
+        <!-- Footer with Admin Portal Access & Emergency Contacts -->
+        <footer class="app-footer" style="margin-top:4.5rem; padding:2.5rem 0 2rem; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div class="brand-icon-wrapper" style="width:34px; height:34px; font-size:1rem;">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <strong style="color:#0f2b48; font-size:1rem;">AapadaSathi</strong>
+              <div style="font-size:0.775rem; color:#64748b;">${TranslationService.t('tagline', lang)}</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+            <a href="#response-dashboard" class="btn btn-secondary btn-sm" style="background:#ffffff; border:1px solid #cbd5e1; color:#0f2b48; font-weight:700; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+              <i class="fa-solid fa-lock"></i> ${TranslationService.t('adminPortal', lang)}
+            </a>
+            <a href="tel:112" class="header-hotline-badge" style="text-decoration:none;">
+              <i class="fa-solid fa-phone-volume"></i>
+              <span>${TranslationService.t('emergencyHelplineFull', lang)}</span>
+            </a>
+          </div>
+        </footer>
       </div>
     `;
 

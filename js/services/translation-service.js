@@ -205,7 +205,24 @@ const DICTIONARY = {
     targetSettlementLabel: "Target Settlement",
     hazardScenarioLabel: "Hazard Scenario",
     languageOutputLabel: "Language Output",
-    broadcastDemoBtn: "Broadcast Simulated Alert"
+    broadcastDemoBtn: "Broadcast Simulated Alert",
+
+    // Map Specific
+    filters: "Filters:",
+    allHazards: "All Hazards",
+    flooding: "Flooding",
+    erosion: "Erosion",
+    criticalOnly: "Critical Only",
+    listView: "List View",
+    mapView: "Map View",
+    realtimeSimulation: "Realtime Simulation",
+    riskSeverityScale: "Risk Severity Scale",
+    criticalScale: "Critical (80-100)",
+    highScale: "High (60-79)",
+    moderateScale: "Moderate (40-59)",
+    lowScale: "Low (<40)",
+    hazardLabel: "Hazard:",
+    populationLabel: "Population:"
   },
   hi: {
     // Brand & Header
@@ -407,7 +424,24 @@ const DICTIONARY = {
     targetSettlementLabel: "लक्षित बस्ती",
     hazardScenarioLabel: "आपदा का प्रकार",
     languageOutputLabel: "भाषा चयन",
-    broadcastDemoBtn: "परीक्षण संदेश प्रसारित करें"
+    broadcastDemoBtn: "परीक्षण संदेश प्रसारित करें",
+
+    // Map Specific
+    filters: "फ़िल्टर:",
+    allHazards: "सभी ख़तरे",
+    flooding: "बाढ़",
+    erosion: "कटाव",
+    criticalOnly: "केवल गंभीर",
+    listView: "सूची दृश्य",
+    mapView: "मानचित्र दृश्य",
+    realtimeSimulation: "लाइव सिमुलेशन",
+    riskSeverityScale: "जोखिम गंभीरता पैमाना",
+    criticalScale: "गंभीर (80-100)",
+    highScale: "उच्च (60-79)",
+    moderateScale: "मध्यम (40-59)",
+    lowScale: "निम्न (<40)",
+    hazardLabel: "ख़तरा:",
+    populationLabel: "जनसंख्या:"
   }
 };
 
