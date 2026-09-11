@@ -13,20 +13,28 @@ export class RiskMarkers {
     // Display risk score (0-100) for the settlement
     const displayValue = (settlement.riskScore !== undefined && settlement.riskScore !== null)
       ? settlement.riskScore
-      : 'N/A';
+      : (settlement.river_discharge_m3s !== undefined && settlement.river_discharge_m3s !== null)
+        ? `${settlement.river_discharge_m3s} m³/s`
+        : 'Unavailable';
 
+    // Determine marker appearance
     let markerClass = 'marker-low';
     let size = 32;
-
-    if (level === 'critical') {
-      markerClass = 'marker-critical';
-      size = 38;
-    } else if (level === 'high') {
-      markerClass = 'marker-high';
-      size = 34;
-    } else if (level === 'moderate') {
-      markerClass = 'marker-moderate';
-      size = 30;
+    if (settlement.riskScore !== undefined && settlement.riskScore !== null) {
+      // Existing risk level determines color
+      const level = (settlement.riskLevel || 'LOW').toLowerCase();
+      if (level === 'critical') { markerClass = 'marker-critical'; size = 38; }
+      else if (level === 'high') { markerClass = 'marker-high'; size = 34; }
+      else if (level === 'moderate') { markerClass = 'marker-moderate'; size = 30; }
+      else { markerClass = 'marker-low'; size = 32; }
+    } else if (settlement.river_discharge_m3s !== undefined && settlement.river_discharge_m3s !== null) {
+      // Discharge data – use a dedicated visual style
+      markerClass = 'marker-discharge';
+      size = 36;
+    } else {
+      // No data – keep default low style
+      markerClass = 'marker-low';
+      size = 32;
     }
 
     const html = `

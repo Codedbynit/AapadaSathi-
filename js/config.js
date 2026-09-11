@@ -8,7 +8,7 @@
 
 export const CONFIG = {
   // Toggle between local high-fidelity mock data and live FastAPI backend
-  USE_MOCK_DATA: true,
+  USE_MOCK_DATA: false,
 
   // Production-configurable API Base URL
   // Backend now runs in the same Vercel project via api/index.py

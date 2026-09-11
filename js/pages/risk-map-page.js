@@ -189,7 +189,7 @@ await loadMapConfig();
         let filtered = settlements;
 
         if (filter === 'FLOOD') {
-          filtered = settlements.filter(s => s.hazardType.includes('FLOOD'));
+          filtered = settlements.filter(s => s.river_discharge_m3s !== undefined && s.river_discharge_m3s !== null);
         } else if (filter === 'EROSION') {
           filtered = settlements.filter(s => s.hazardType.includes('EROSION'));
         } else if (filter === 'CRITICAL_ONLY') {

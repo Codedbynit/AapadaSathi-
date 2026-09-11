@@ -4,7 +4,7 @@
  */
 
 import { ApiClient } from './api-client.js';
-import { MOCK_RESPONSE_OVERVIEW } from '../services/mock-data-service.js';
+
 
 export class ResponseApi {
   /**
@@ -12,8 +12,6 @@ export class ResponseApi {
    * Backend endpoint: GET /api/response/overview
    */
   static async getOverview() {
-    return ApiClient.get('/response/overview', () => {
-      return MOCK_RESPONSE_OVERVIEW;
-    });
+    return ApiClient.get('/response/overview');
   }
 }

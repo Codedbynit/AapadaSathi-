@@ -10,7 +10,7 @@
  */
 
 import { ApiClient } from './api-client.js';
-import { MOCK_SAFE_ROUTE } from '../services/mock-data-service.js';
+
 
 export class RouteApi {
   /**
@@ -18,9 +18,7 @@ export class RouteApi {
    * Backend endpoint: GET /api/routes/{settlement_id}
    */
   static async getRouteBySettlementId(settlementId) {
-    return ApiClient.get(`/routes/${settlementId}`, () => {
-      return MOCK_SAFE_ROUTE;
-    });
+    return ApiClient.get(`/routes/${settlementId}`);
   }
 
   /**
