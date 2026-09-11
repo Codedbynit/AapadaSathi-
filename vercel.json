@@ -1,1 +1,0 @@
-{\n  " functions\: {\n \backend/main.py\: {\n \runtime\: \python3.11\\n }\n },\n \routes\: [\n { \src\: \/api/  \, \dest\: \/backend/main.py\ }\n ]\n}
