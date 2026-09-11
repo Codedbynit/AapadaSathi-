@@ -10,8 +10,32 @@ export const CONFIG = {
   // Toggle between local high-fidelity mock data and live FastAPI backend
   USE_MOCK_DATA: false,
 
-  // Future FastAPI backend base URL
-  API_BASE_URL: 'http://localhost:8000/api',
+  // Production-configurable API Base URL
+  // 1. Checks for VITE_API_BASE_URL (if a bundler like Vite is added later)
+  // 2. Checks for window.ENV.API_BASE_URL (if injected via a pre-build script on Vercel)
+  // 3. Defaults to localhost:8000 ONLY if running locally
+  // 4. Defaults to '/api' for production rewrites if no env var is found
+  API_BASE_URL: (() => {
+    // Check Vite env var
+    try {
+      if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+      }
+    } catch (e) {}
+
+    // Check globally injected env var
+    if (typeof window !== 'undefined' && window.ENV && window.ENV.API_BASE_URL) {
+      return window.ENV.API_BASE_URL;
+    }
+
+    // Check if local development
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return 'http://localhost:8000/api';
+    }
+
+    // Fallback for Vercel vanilla deployments (requires vercel.json rewrite)
+    return '/api';
+  })(),
 
   // Request timeout in milliseconds
   API_TIMEOUT_MS: 6000,
