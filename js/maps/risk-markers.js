@@ -10,10 +10,9 @@ export class RiskMarkers {
   static createDivIcon(settlement) {
     const level = (settlement.riskLevel || 'LOW').toLowerCase();
 
-    // Display real river discharge from Open-Meteo, not a placeholder score
-    const discharge = settlement.river_discharge_m3s;
-    const displayValue = (discharge !== null && discharge !== undefined)
-      ? Math.round(discharge * 10) / 10
+    // Display risk score (0-100) for the settlement
+    const displayValue = (settlement.riskScore !== undefined && settlement.riskScore !== null)
+      ? settlement.riskScore
       : 'N/A';
 
     let markerClass = 'marker-low';
