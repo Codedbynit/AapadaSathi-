@@ -60,9 +60,11 @@ export class RiskMarkers {
       <div class="map-popup-body">
         <div><strong>Hazard:</strong> ${settlement.hazardType || 'Unknown'}</div>
         <div><strong>Risk Score:</strong> ${settlement.riskScore !== undefined ? settlement.riskScore + '/100' : 'N/A'}</div>
+        <div><strong>River Discharge:</strong> ${(() => { const f = settlement.factors?.find(f => f.id === 'f2'); return f ? f.value : 'Unavailable'; })()}</div>
         <div><strong>Estimated Lead Time:</strong> <span style="color:#38bdf8; font-weight:bold;">${settlement.leadTimeHours !== undefined ? settlement.leadTimeHours + ' hrs' : 'N/A'}</span></div>
         <div><strong>Confidence:</strong> ${settlement.confidence || 'N/A'}</div>
         <div><strong>Population:</strong> ${settlement.population.toLocaleString()}</div>
+        <div><strong>Data Source:</strong> Open-Meteo Flood Forecast</div>
       </div>
       <div class="map-popup-action" style="display:flex; gap:0.5rem; margin-top:0.75rem;">
         <button class="btn btn-primary btn-sm popup-view-btn" style="flex:1;">
