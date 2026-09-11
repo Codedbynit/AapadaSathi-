@@ -2,6 +2,7 @@ import sqlite3
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 import asyncio
+import os
 from backend.services.geonames import fetch_geonames_settlements
 
 # Define paths
@@ -9,11 +10,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "aapadasathi.db"
 
+# In-memory cache for Vercel Serverless environment
+_memory_cache: List[Dict[str, Any]] = []
+
+def is_vercel() -> bool:
+    return os.getenv("VERCEL") == "1"
+
 async def init_db():
     """
-    Initializes the SQLite database, creates the settlements table,
+    Initializes the SQLite database (locally) or in-memory cache (Vercel),
     and seeds it with initial real-world data if empty.
     """
+    global _memory_cache
+    if is_vercel():
+        if not _memory_cache:
+            try:
+                # Fetch directly into memory for Vercel
+                geonames_data = await fetch_geonames_settlements("Assam", "IN", 10)
+                _memory_cache = geonames_data
+            except Exception as e:
+                print(f"Failed to fetch from GeoNames in memory: {e}")
+        return
     # Create the data directory if it doesn't exist
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     
@@ -66,8 +83,11 @@ async def init_db():
 
 def get_all_settlements() -> List[Dict[str, Any]]:
     """
-    Returns all settlements from the database.
+    Returns all settlements from the database or in-memory cache.
     """
+    if is_vercel():
+        return _memory_cache
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -83,6 +103,12 @@ def get_settlement(settlement_id: str) -> Optional[Dict[str, Any]]:
     """
     Returns a single settlement by its ID, or None if not found.
     """
+    if is_vercel():
+        for s in _memory_cache:
+            if s["id"] == settlement_id:
+                return s
+        return None
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()

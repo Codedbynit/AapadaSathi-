@@ -1,1 +1,10 @@
-﻿{" functions\: {\api/index.py\: {\runtime\: \python3.11\}}, \rewrites\: [{\source\: \/api/  \, \destination\: \/api/index.py\}]}
+{
+  "functions": {
+    "api/[...path].py": {
+      "runtime": "python3.11"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/[...path].py" }
+  ]
+}
