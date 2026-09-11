@@ -2,10 +2,10 @@ import asyncio
 import json
 from pathlib import Path
 import sqlite3
-from backend.services.historical_data import build_historical_dataset
+from api.services.historical_data import build_historical_dataset
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "backend" / "data"
+DATA_DIR = BASE_DIR / "api" / "data"
 DB_PATH = DATA_DIR / "aapadasathi.db"
 OUTPUT_PATH = DATA_DIR / "historical_features.json"
 

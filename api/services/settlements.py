@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 import asyncio
 import os
-from backend.services.geonames import fetch_geonames_settlements
+from api.services.geonames import fetch_geonames_settlements
 
 # Define paths
 BASE_DIR = Path(__file__).resolve().parent.parent
