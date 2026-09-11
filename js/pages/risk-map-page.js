@@ -6,6 +6,7 @@ import { state } from '../state.js';
 import { RiskService } from '../services/risk-service.js';
 import { MapController } from '../maps/map-controller.js';
 import { RiskMarkers } from '../maps/risk-markers.js';
+import { loadMapConfig } from '../maps/map-config.js';
 import { Toast } from '../components/toast.js';
 import { TranslationService } from '../services/translation-service.js';
 
@@ -114,6 +115,9 @@ export class RiskMapPage {
         </div>
       </div>
     `;
+
+    // Resolve CARTO tile URL (with API key) from backend before initialising map
+    await loadMapConfig();
 
     this.initMap(settlements, activeSettlementId);
     this.attachEvents(settlements);

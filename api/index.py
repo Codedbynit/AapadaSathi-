@@ -35,6 +35,23 @@ async def root():
         "message": "SetuAlert backend is running"
     }
 
+@app.get("/api/config")
+async def frontend_config():
+    """
+    Returns public frontend configuration.
+    CARTO_BASEMAP_API_KEY is read from server environment — never exposed in client JS.
+    """
+    carto_key = os.environ.get("CARTO_BASEMAP_API_KEY", "")
+    if carto_key:
+        tile_url = f"https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png?key={carto_key}"
+    else:
+        # Fallback to keyless URL (shows watermark if CARTO enforces key)
+        tile_url = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+    return {
+        "map_tile_url": tile_url,
+        "map_attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+    }
+
 @app.get("/api/weather")
 async def weather(lat: float, lon: float):
     return await get_weather_data(lat, lon)
