@@ -1,0 +1,125 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "corridor-primary",
+        "name": "Primary Evacuation Corridor: Mikirpara to Model College Shelter",
+        "status": "CLEAR",
+        "surface": "Paved Embankment Road",
+        "distanceKm": 4.2,
+        "estimatedMinutesFoot": 50,
+        "estimatedMinutesVehicle": 12,
+        "safetyLevel": "RECOMMENDED"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [94.1820, 26.9650],
+          [94.1845, 26.9675],
+          [94.1890, 26.9710],
+          [94.1950, 26.9740],
+          [94.2020, 26.9790],
+          [94.2080, 26.9830],
+          [94.2140, 26.9860],
+          [94.2190, 26.9900],
+          [94.2250, 26.9940]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "corridor-alternate",
+        "name": "Alternate High-Ground Route via Garamur Spur",
+        "status": "CLEAR",
+        "surface": "All-Weather Paved Highway",
+        "distanceKm": 5.8,
+        "estimatedMinutesFoot": 72,
+        "estimatedMinutesVehicle": 16,
+        "safetyLevel": "SECONDARY"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [94.1820, 26.9650],
+          [94.1800, 26.9700],
+          [94.1830, 26.9780],
+          [94.1920, 26.9850],
+          [94.2060, 26.9910],
+          [94.2250, 26.9940]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "hazard-flood-zone",
+        "name": "Active Inundation Zone (Low-lying Riverbank)",
+        "hazard": "FLOOD",
+        "depthEstimateM": "1.2m - 2.5m",
+        "warningLevel": "DANGER"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [94.1700, 26.9550],
+            [94.1900, 26.9580],
+            [94.2050, 26.9650],
+            [94.1980, 26.9700],
+            [94.1850, 26.9680],
+            [94.1720, 26.9620],
+            [94.1700, 26.9550]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "blockage-01",
+        "name": "Culvert Breach & Rapid Water Flow",
+        "type": "ROAD_BLOCKED",
+        "severity": "IMPASSABLE",
+        "description": "South Embankment Road km 3.2 is washed out. Do not attempt crossing."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [94.1915, 26.9630]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "shelter-01",
+        "name": "Model Higher Secondary & Multi-Purpose Cyclone/Flood Shelter",
+        "type": "SAFE_SHELTER",
+        "capacity": 1800,
+        "occupancy": "32% Available",
+        "amenities": ["Drinking Water", "First Aid", "Generator Backup", "Dry Rations", "Sanitation"],
+        "elevation": "High Ground (+14m above river datum)",
+        "contact": "+91 94350 XXXXX (Shelter In-Charge)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [94.2250, 26.9940]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "origin-mikirpara",
+        "name": "Mikirpara Settlement (Ward 4)",
+        "type": "AT_RISK_SETTLEMENT",
+        "riskLevel": "CRITICAL",
+        "riskScore": 89
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [94.1820, 26.9650]
+      }
+    }
+  ]
+}

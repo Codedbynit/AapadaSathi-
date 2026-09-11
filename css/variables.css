@@ -1,0 +1,92 @@
+/**
+ * AapadaSathi Design System Variables - Modern Light Glassmorphism Mode
+ * Calming, trustworthy, operational emergency palette:
+ * Clean Warm Slate (#f4f7fb), Crisp White Glass, Deep Ocean Navy (#0f2b48),
+ * Primary Teal (#0a6e89), Vibrant Aqua (#0284c7 / #38bdf8), and Accessible Status Badges.
+ */
+
+:root {
+  /* Brand Core Palette */
+  --color-primary: #0a6e89;           /* Deep Ocean Teal */
+  --color-primary-dark: #074758;      /* Deep Midnight Teal */
+  --color-primary-light: #0e8baa;     /* Luminous Coastal Blue */
+  --color-secondary: #0f2b48;         /* Deep Command Navy */
+  --color-secondary-light: #1e3a5f;   /* Steel Navy */
+  --color-accent: #0284c7;            /* Bright Vibrant Aqua / Cyan */
+  --color-accent-hover: #0369a1;
+  --color-accent-subtle: rgba(2, 132, 199, 0.08);
+
+  /* Surfaces & Glassmorphism (Light Mode) */
+  --color-bg: #f4f7fb;                /* Warm Soft Slate / Light Oceanic Tone */
+  --color-bg-alt: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-glass: rgba(255, 255, 255, 0.85); /* Frosted Crystal White Glass */
+  --color-surface-glass-hover: rgba(255, 255, 255, 0.96);
+  --color-surface-glass-light: rgba(241, 245, 249, 0.7);
+  --color-surface-elevated: #ffffff;
+
+  /* Typography Colors (High Contrast WCAG AAA / AA for Light Mode) */
+  --color-text-primary: #0f2b48;      /* Deep Navy 900 */
+  --color-text-secondary: #334155;    /* Slate 700 - Highly Legible */
+  --color-text-tertiary: #64748b;     /* Slate 500 */
+  --color-text-inverse: #ffffff;      /* White text for buttons/dark badges */
+  --color-text-accent: #0284c7;
+
+  /* Hazard & Operational Risk Severity Colors (Accessible for Light Backgrounds) */
+  --color-risk-low: #059669;          /* Emerald Green (LOW) */
+  --color-risk-low-bg: #ecfdf5;
+  --color-risk-low-border: #a7f3d0;
+
+  --color-risk-moderate: #d97706;     /* Amber Ochre (MODERATE) */
+  --color-risk-moderate-bg: #fffbeb;
+  --color-risk-moderate-border: #fde68a;
+
+  --color-risk-high: #ea580c;         /* Tangerine Orange (HIGH) */
+  --color-risk-high-bg: #fff7ed;
+  --color-risk-high-border: #fed7aa;
+
+  --color-risk-critical: #dc2626;     /* Urgent Crimson (CRITICAL) */
+  --color-risk-critical-bg: #fef2f2;
+  --color-risk-critical-border: #fecaca;
+
+  /* Semantic State Colors */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+
+  /* Borders & Overlays */
+  --color-border: rgba(15, 43, 72, 0.12);
+  --color-border-subtle: rgba(15, 43, 72, 0.06);
+  --color-border-focus: #0284c7;
+  --color-border-glow: rgba(2, 132, 199, 0.35);
+  --color-overlay: rgba(15, 43, 72, 0.45);
+
+  /* Modern Soft Shadows */
+  --shadow-sm: 0 1px 3px rgba(15, 43, 72, 0.06), 0 1px 2px rgba(15, 43, 72, 0.04);
+  --shadow-md: 0 4px 16px -2px rgba(15, 43, 72, 0.08), 0 2px 6px -1px rgba(15, 43, 72, 0.04);
+  --shadow-lg: 0 12px 32px -4px rgba(15, 43, 72, 0.12), 0 4px 12px -2px rgba(15, 43, 72, 0.06);
+  --shadow-glow-cyan: 0 0 20px rgba(2, 132, 199, 0.2);
+  --shadow-glow-danger: 0 0 24px rgba(220, 38, 38, 0.2);
+
+  /* Glass Optics */
+  --glass-blur: blur(14px);
+  --glass-blur-heavy: blur(20px);
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}

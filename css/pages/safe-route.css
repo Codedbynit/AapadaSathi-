@@ -1,0 +1,285 @@
+/**
+ * Page Styles: Safe Route / Evacuation Guidance - Light Theme
+ */
+
+.safe-route-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Evacuation Urgent Banner */
+.evac-banner {
+  padding: 1.35rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-left: 6px solid #dc2626;
+  background: #ffffff;
+  border-top: 1px solid rgba(15, 43, 72, 0.08);
+  border-right: 1px solid rgba(15, 43, 72, 0.08);
+  border-bottom: 1px solid rgba(15, 43, 72, 0.08);
+}
+
+.evac-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.evac-banner-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  animation: pulseRadar 2s infinite;
+  flex-shrink: 0;
+}
+
+.evac-banner-text h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f2b48;
+}
+
+.evac-banner-text p {
+  font-size: 0.875rem;
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Route Metrics Bar */
+.route-metrics-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.route-metric-card {
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid rgba(15, 43, 72, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(15, 43, 72, 0.04);
+}
+
+.route-metric-icon {
+  font-size: 1.5rem;
+  color: #0284c7;
+}
+
+.route-metric-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.route-metric-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f2b48;
+  line-height: 1.1;
+}
+
+.route-metric-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Main Split View: Map & Step Guidance */
+.route-split-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1.5rem;
+  min-height: 540px;
+}
+
+@media (max-width: 960px) {
+  .route-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.route-map-panel {
+  position: relative;
+  min-height: 500px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(15, 43, 72, 0.12);
+  box-shadow: var(--shadow-md);
+}
+
+#leaflet-route-map {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  background: #e2e8f0;
+}
+
+/* Map Route Overlay Legend */
+.route-map-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 500;
+  padding: 0.55rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(15, 43, 72, 0.12);
+  border-radius: var(--radius-md);
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #0f2b48;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Turn-by-Turn Instructions Panel */
+.route-guide-panel {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  overflow-y: auto;
+  max-height: 620px;
+  background: #ffffff;
+}
+
+.shelter-destination-card {
+  padding: 1.25rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.shelter-badge {
+  align-self: flex-start;
+  background: #059669;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+}
+
+.shelter-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #064e3b;
+}
+
+.shelter-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+}
+
+.amenity-tag {
+  font-size: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #a7f3d0;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: #065f46;
+  font-weight: 600;
+}
+
+/* Steps List */
+.route-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  position: relative;
+  padding-left: 2.25rem;
+  margin-top: 0.5rem;
+}
+
+.route-steps-list::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 11px;
+  bottom: 10px;
+  width: 2px;
+  background: #0a6e89;
+}
+
+.route-step-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.step-bullet {
+  position: absolute;
+  left: -2.25rem;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #0a6e89;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.step-bullet.shelter-bullet {
+  background: #059669;
+  border-color: #ffffff;
+}
+
+.step-text {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: #0f2b48;
+  line-height: 1.4;
+}
+
+.step-subtext {
+  font-size: 0.825rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+/* Road Hazard Notice */
+.road-block-alert {
+  padding: 0.95rem 1.15rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  font-size: 0.85rem;
+  color: #991b1b;
+}
+
+.road-block-alert i {
+  color: #dc2626;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}

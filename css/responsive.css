@@ -1,0 +1,90 @@
+/**
+ * AapadaSathi Responsive Breakpoints
+ * Mobile, Tablet, and Desktop Adaptive Rules
+ */
+
+/* Medium devices (tablets, less than 1024px) */
+@media (max-width: 1024px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .main-content {
+    padding-bottom: 5.5rem; /* Space for bottom nav bar */
+  }
+
+  .toast-container {
+    bottom: 6rem;
+    left: 1rem;
+    right: 1rem;
+  }
+}
+
+/* Small devices (phones, less than 768px) */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 0.75rem 1rem;
+  }
+
+  .brand-tagline {
+    display: none;
+  }
+
+  .persona-toggle {
+    display: none; /* Accessible in drawer on mobile */
+  }
+
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .btn-lg {
+    padding: 0.85rem 1.4rem;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .factor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Extra small devices (phones, less than 480px) */
+@media (max-width: 480px) {
+  .demo-banner-content {
+    font-size: 0.75rem;
+  }
+
+  .brand-name {
+    font-size: 1.1rem;
+  }
+
+  .risk-gauge-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  .risk-gauge-score {
+    font-size: 2.25rem;
+  }
+}

@@ -1,0 +1,208 @@
+/**
+ * Page Styles: Live Risk Map - Light Theme
+ */
+
+.map-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: calc(100vh - 180px);
+  min-height: 600px;
+  position: relative;
+}
+
+/* Map Floating Control Toolbar */
+.map-toolbar {
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  z-index: 10;
+  background: #ffffff;
+  border: 1px solid rgba(15, 43, 72, 0.08);
+}
+
+.map-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-full);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+  background: #f8fafc;
+}
+
+.filter-chip.active {
+  background: #0a6e89;
+  border-color: #0a6e89;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(10, 110, 137, 0.25);
+}
+
+/* Map Canvas Container */
+.map-canvas-container {
+  flex: 1;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(15, 43, 72, 0.12);
+  position: relative;
+  box-shadow: var(--shadow-md);
+  background: #f1f5f9;
+}
+
+#leaflet-risk-map {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: #e2e8f0;
+}
+
+/* Map Legend */
+.map-legend-box {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 500;
+  padding: 0.9rem 1.25rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(15, 43, 72, 0.12);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.legend-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 0.2rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.825rem;
+  color: #0f2b48;
+  font-weight: 600;
+}
+
+/* Custom Marker Styles */
+.custom-risk-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.marker-critical {
+  background: #dc2626;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.6);
+  animation: pulseRadar 2s infinite;
+}
+
+.marker-high {
+  background: #ea580c;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 12px rgba(234, 88, 12, 0.5);
+}
+
+.marker-moderate {
+  background: #d97706;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.4);
+}
+
+.marker-low {
+  background: #059669;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.4);
+}
+
+/* Custom Leaflet Popup - Clean Light Theme */
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 43, 72, 0.12) !important;
+  border-radius: var(--radius-lg) !important;
+  color: #0f2b48 !important;
+  box-shadow: 0 12px 36px rgba(15, 43, 72, 0.16) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 1.15rem !important;
+  line-height: 1.45 !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 43, 72, 0.12) !important;
+}
+
+.map-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.5rem;
+}
+
+.map-popup-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f2b48;
+}
+
+.map-popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.map-popup-action {
+  margin-top: 0.85rem;
+}
+
+/* Fallback Card List View */
+.map-fallback-list {
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  padding: 1.25rem;
+  overflow-y: auto;
+  max-height: 550px;
+}
