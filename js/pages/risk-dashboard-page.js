@@ -45,6 +45,54 @@ export class RiskDashboardPage {
       console.warn("Failed to load real flood data:", e);
     }
 
+    if (!riskData) {
+      container.innerHTML = `
+      <div class="dashboard-container fade-in">
+        <div class="glass-panel" style="padding:4rem 2rem; text-align:center; color:#64748b; border: 1px solid #e2e8f0;">
+          <i class="fa-solid fa-server" style="font-size:3rem; margin-bottom:1.5rem; color:#cbd5e1;"></i>
+          <h2 style="color:#0f2b48; margin-bottom:0.5rem; font-size:1.5rem;">Risk prediction data unavailable</h2>
+          <p style="font-size:1rem; max-width:500px; margin:0 auto;">The AI risk modeling system and settlement data are currently unavailable. The real backend has not been implemented yet.</p>
+        </div>
+
+        <section class="factors-section" style="margin-top:2rem;">
+          <div style="margin-bottom:1rem;">
+            <h3>Live Telemetry (Standalone)</h3>
+            <p style="font-size:0.875rem; color:#64748b;">Direct readings bypassing the risk engine.</p>
+          </div>
+          <div class="factor-grid">
+            ${liveRiverDischarge !== null ? `
+              <div class="factor-card" style="border-left:4px solid #f59e0b; background:#fffbeb;">
+                <div class="factor-header">
+                  <span style="font-weight:600; color:#b45309;">River Discharge (Live)</span>
+                  <i class="fa-solid fa-water" style="color:#b45309;"></i>
+                </div>
+                <div class="factor-value-row">
+                  <span class="factor-value" style="color:#b45309;">${liveRiverDischarge}</span>
+                  <span class="factor-unit">/ m³/s</span>
+                </div>
+                <div class="factor-explanation" style="color:#92400e;">
+                  Live river discharge data from Open-Meteo API.
+                </div>
+              </div>
+            ` : `
+              <div class="factor-card">
+                <div class="factor-header">
+                  <span>River Discharge</span>
+                  <i class="fa-solid fa-water"></i>
+                </div>
+                <div class="factor-value-row">
+                  <span class="factor-value" style="color:#94a3b8; font-size:1.5rem;">Data unavailable</span>
+                </div>
+                <div class="factor-explanation">Backend connection failed.</div>
+              </div>
+            `}
+          </div>
+        </section>
+      </div>
+      `;
+      return;
+    }
+
     // Inject live data into the factors array
     if (riskData && riskData.factors) {
       riskData.factors.forEach(factor => {

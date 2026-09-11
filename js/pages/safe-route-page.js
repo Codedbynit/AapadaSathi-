@@ -22,6 +22,23 @@ export class SafeRoutePage {
     const routeData = await RouteService.getRoute(settlementId);
     const geojsonData = await RouteService.getGeoJson();
 
+    if (!riskData || !routeData || !geojsonData) {
+      container.innerHTML = `
+        <div class="safe-route-container fade-in">
+          <div class="glass-panel" style="padding:3.5rem 2rem; text-align:center; display:flex; flex-direction:column; align-items:center; gap:1.25rem;">
+            <div class="state-icon" style="background:#f1f5f9; color:#94a3b8; border:1px solid #e2e8f0;">
+              <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <h2 style="color:#0f2b48;">Route Data Unavailable</h2>
+            <p style="max-width:540px; color:#475569;">
+              The evacuation routing system is currently offline or the real backend is not yet implemented.
+            </p>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     // If evacuation is not recommended
     if (!riskData.evacuationRequired) {
       container.innerHTML = `

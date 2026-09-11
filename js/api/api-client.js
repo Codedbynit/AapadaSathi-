@@ -44,13 +44,7 @@ export class ApiClient {
       return { data, isMock: false, status: response.status };
     } catch (error) {
       clearTimeout(timeoutId);
-      console.warn(`[ApiClient] Live API call to ${url} failed. Falling back to mock data if available:`, error.message);
-
-      // Non-blocking graceful degradation: Fallback to mock if live API is unavailable
-      if (typeof mockFallbackFn === 'function') {
-        return { data: mockFallbackFn(), isMock: true, status: 200, fallbackTriggered: true };
-      }
-
+      console.warn(`[ApiClient] Live API call to ${url} failed:`, error.message);
       throw error;
     }
   }
@@ -80,10 +74,7 @@ export class ApiClient {
       const data = await response.json();
       return { data, isMock: false, status: response.status };
     } catch (error) {
-      console.warn(`[ApiClient] POST to ${url} failed.`, error.message);
-      if (typeof mockFallbackFn === 'function') {
-        return { data: mockFallbackFn(payload), isMock: true, status: 200, fallbackTriggered: true };
-      }
+      console.warn(`[ApiClient] POST to ${url} failed:`, error.message);
       throw error;
     }
   }

@@ -7,12 +7,16 @@ import { RouteApi } from '../api/route-api.js';
 
 export class RouteService {
   static async getRoute(settlementId) {
-    const res = await RouteApi.getRouteBySettlementId(settlementId);
-    return res.data;
+    try {
+      const res = await RouteApi.getRouteBySettlementId(settlementId);
+      return res.data;
+    } catch { return null; }
   }
 
   static async getGeoJson() {
-    const res = await RouteApi.getRouteGeoJson();
-    return res.data;
+    try {
+      const res = await RouteApi.getRouteGeoJson();
+      return res.data;
+    } catch { return null; }
   }
 }

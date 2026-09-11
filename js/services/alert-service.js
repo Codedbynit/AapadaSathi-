@@ -6,12 +6,16 @@ import { AlertApi } from '../api/alert-api.js';
 
 export class AlertService {
   static async getAlerts(filters = {}) {
-    const res = await AlertApi.getAlerts(filters);
-    return res.data;
+    try {
+      const res = await AlertApi.getAlerts(filters);
+      return res.data;
+    } catch { return []; }
   }
 
   static async previewAlert(payload) {
-    const res = await AlertApi.previewAlert(payload);
-    return res.data;
+    try {
+      const res = await AlertApi.previewAlert(payload);
+      return res.data;
+    } catch { return null; }
   }
 }

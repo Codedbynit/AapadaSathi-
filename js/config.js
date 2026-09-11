@@ -8,7 +8,7 @@
 
 export const CONFIG = {
   // Toggle between local high-fidelity mock data and live FastAPI backend
-  USE_MOCK_DATA: true,
+  USE_MOCK_DATA: false,
 
   // Future FastAPI backend base URL
   API_BASE_URL: 'http://localhost:8000/api',

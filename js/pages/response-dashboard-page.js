@@ -16,6 +16,19 @@ export class ResponseDashboardPage {
     const settlements = await RiskService.getAllSettlements();
     const overview = await ResponseService.getOverview();
 
+    if (!overview) {
+      container.innerHTML = `
+        <div class="response-container fade-in">
+          <div class="glass-panel response-header" style="text-align:center; padding: 4rem;">
+            <i class="fa-solid fa-server" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem;"></i>
+            <h2>Admin Portal Data Unavailable</h2>
+            <p>The centralized incident command backend is currently offline.</p>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     const sortedSettlements = [...settlements].sort((a, b) => b.riskScore - a.riskScore);
 
     container.innerHTML = `

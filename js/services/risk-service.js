@@ -7,18 +7,24 @@ import { RiskApi } from '../api/risk-api.js';
 
 export class RiskService {
   static async getAllSettlements() {
-    const res = await RiskApi.getSettlements();
-    return res.data;
+    try {
+      const res = await RiskApi.getSettlements();
+      return res.data;
+    } catch { return []; }
   }
 
   static async getRisk(settlementId) {
-    const res = await RiskApi.getRiskBySettlementId(settlementId);
-    return res.data;
+    try {
+      const res = await RiskApi.getRiskBySettlementId(settlementId);
+      return res.data;
+    } catch { return null; }
   }
 
   static async search(query) {
-    const res = await RiskApi.searchSettlements(query);
-    return res.data;
+    try {
+      const res = await RiskApi.searchSettlements(query);
+      return res.data;
+    } catch { return []; }
   }
 
   static getRiskColor(level) {

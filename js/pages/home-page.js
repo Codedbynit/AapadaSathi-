@@ -86,6 +86,7 @@ export class HomePage {
 
           <!-- Right Column: Live Early-Warning Pulse Widget -->
           <div class="hero-right">
+            ${alerts && alerts.length > 0 ? `
             <div class="hero-radar-card floating-widget">
               <div class="radar-card-header">
                 <div>
@@ -139,6 +140,13 @@ export class HomePage {
                 </a>
               </div>
             </div>
+            ` : `
+            <div class="hero-radar-card floating-widget" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 1.5rem; text-align:center; color:#64748b;">
+              <i class="fa-solid fa-satellite-dish" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem;"></i>
+              <h3 style="color:#475569; margin-bottom:0.5rem;">Alert data unavailable</h3>
+              <p style="font-size:0.875rem;">AI early-warning models are currently initializing or unavailable. Real data flow is required.</p>
+            </div>
+            `}
           </div>
         </section>
 
@@ -149,7 +157,7 @@ export class HomePage {
               <i class="fa-solid fa-city"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number">28</div>
+              <div class="stat-number">${settlements ? settlements.length : 0}</div>
               <div class="stat-label">${TranslationService.t('monitoredSettlements', lang)}</div>
             </div>
           </div>
@@ -159,7 +167,7 @@ export class HomePage {
               <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number" style="color:#dc2626;">4 ${TranslationService.t('activeLabel', lang)}</div>
+              <div class="stat-number" style="color:#dc2626;">${alerts ? alerts.length : 0} ${TranslationService.t('activeLabel', lang)}</div>
               <div class="stat-label">${TranslationService.t('activeWarnings', lang)}</div>
             </div>
           </div>
@@ -169,7 +177,7 @@ export class HomePage {
               <i class="fa-solid fa-hourglass-half"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number">~8.2 hrs</div>
+              <div class="stat-number">N/A</div>
               <div class="stat-label">${TranslationService.t('avgLeadTime', lang)}</div>
             </div>
           </div>
@@ -179,7 +187,7 @@ export class HomePage {
               <i class="fa-solid fa-network-wired"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-number" style="color:#059669;">5 ${TranslationService.t('liveSourcesLabel', lang)}</div>
+              <div class="stat-number" style="color:#059669;">1 ${TranslationService.t('liveSourcesLabel', lang)}</div>
               <div class="stat-label">${TranslationService.t('dataHealth', lang)}</div>
             </div>
           </div>
@@ -237,7 +245,7 @@ export class HomePage {
           </div>
 
           <div class="alerts-preview-list">
-            ${alerts.slice(0, 2).map(alert => `
+            ${alerts && alerts.length > 0 ? alerts.slice(0, 2).map(alert => `
               <div class="glass-panel alert-item-card severity-${alert.severity.toLowerCase()}">
                 <div class="alert-icon-col" style="color:${alert.severity === 'CRITICAL' ? '#dc2626' : '#ea580c'}; background:${alert.severity === 'CRITICAL' ? '#fef2f2' : '#fff7ed'};">
                   <i class="fa-solid fa-water"></i>
@@ -265,7 +273,13 @@ export class HomePage {
                   ` : ''}
                 </div>
               </div>
-            `).join('')}
+            `).join('') : `
+              <div class="glass-panel" style="padding:2.5rem; text-align:center; color:#64748b; width: 100%;">
+                <i class="fa-solid fa-bell-slash" style="font-size:2rem; margin-bottom:1rem; color:#cbd5e1;"></i>
+                <h4 style="font-size:1.1rem; color:#0f2b48; margin-bottom:0.25rem;">Alert data unavailable</h4>
+                <p style="font-size:0.875rem;">No active alerts from the AI early-warning system at this time.</p>
+              </div>
+            `}
           </div>
         </section>
 
