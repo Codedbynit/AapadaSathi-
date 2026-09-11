@@ -4,3 +4,4 @@
 envlocal
 __pycache__/
 *.pyc
+backend/data/aapadasathi.db
