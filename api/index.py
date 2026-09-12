@@ -147,10 +147,12 @@ async def firms(
     )
     return data
 
+from fastapi.responses import JSONResponse
+
 @app.post("/api/sos")
 async def create_sos(payload: SosRequestPayload):
-    """Receive emergency SOS request, validate fields, and persist to database.
-    Does NOT send SMS or contact emergency services yet.
+    """Receive emergency SOS request, validate fields, persist to database,
+    and dispatch real Twilio SMS.
     """
     result = save_sos_request(
         emergency_type=payload.emergency_type,
@@ -158,6 +160,8 @@ async def create_sos(payload: SosRequestPayload):
         longitude=payload.longitude,
         timestamp=payload.timestamp
     )
+    if not result.get("success"):
+        return JSONResponse(status_code=500, content=result)
     return result
 
 

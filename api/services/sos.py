@@ -1,9 +1,9 @@
+import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
@@ -28,63 +28,119 @@ def init_sos_table():
             latitude REAL,
             longitude REAL,
             timestamp TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            notification_status TEXT NOT NULL DEFAULT 'FAILED'
         )
     ''')
+    # Add column if table existed prior without notification_status
+    cursor.execute("PRAGMA table_info(sos_requests)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if "notification_status" not in columns:
+        try:
+            cursor.execute("ALTER TABLE sos_requests ADD COLUMN notification_status TEXT DEFAULT 'FAILED'")
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()
 
-def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: Optional[float], timestamp: str) -> Dict[str, Any]:
-    """Saves a validated SOS emergency request into SQLite DB or in-memory store.
+def send_twilio_sos_sms(emergency_type: str, latitude: Optional[float], longitude: Optional[float], timestamp: str) -> bool:
+    """Dispatches a real SMS alert via Twilio using server environment variables:
+    - TWILIO_ACCOUNT_SID
+    - TWILIO_AUTH_TOKEN
+    - TWILIO_PHONE_NUMBER
+    - SOS_RECIPIENT_PHONE
 
-    Parameters
-    ----------
-    emergency_type : str
-        Validated emergency type (FLOOD, FIRE, MEDICAL, OTHER).
-    latitude : Optional[float]
-        Real latitude or None.
-    longitude : Optional[float]
-        Real longitude or None.
-    timestamp : str
-        Generated timestamp.
+    Returns True if Twilio successfully accepts the message request, False otherwise.
+    """
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+    from_number = os.getenv("TWILIO_PHONE_NUMBER", "").strip()
+    to_number = os.getenv("SOS_RECIPIENT_PHONE", "").strip()
+
+    if not account_sid or not auth_token or not from_number or not to_number:
+        print("[Twilio SMS] Missing required environment variables")
+        return False
+
+    try:
+        from twilio.rest import Client
+        client = Client(account_sid, auth_token)
+
+        if latitude is not None and longitude is not None:
+            location_str = f"Latitude: {latitude}\nLongitude: {longitude}"
+        else:
+            location_str = "Unavailable (Location permission denied)"
+
+        body_text = (
+            f"AapadaSathi SOS ALERT\n\n"
+            f"Emergency: {emergency_type.upper()}\n\n"
+            f"Location:\n{location_str}\n\n"
+            f"Time:\n{timestamp}\n\n"
+            f"This is an emergency SOS request."
+        )
+
+        message = client.messages.create(
+            body=body_text,
+            from_=from_number,
+            to=to_number
+        )
+
+        if message and message.sid:
+            return True
+        return False
+    except Exception as exc:
+        print(f"[Twilio SMS] Dispatch failed: {type(exc).__name__}")
+        return False
+
+def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: Optional[float], timestamp: str) -> Dict[str, Any]:
+    """Saves SOS request to SQLite/in-memory store, dispatches Twilio SMS, and returns result status.
 
     Returns
     -------
     Dict[str, Any]
-        { "success": True, "sos_id": "<id>", "status": "RECEIVED" }
+        If Twilio succeeds: { "success": True, "sos_id": "...", "status": "RECEIVED", "notification_status": "SENT" }
+        If Twilio fails: { "success": False, "sos_id": "...", "status": "RECEIVED", "notification_status": "FAILED" }
     """
     sos_id = f"sos-{uuid.uuid4().hex[:8]}"
     created_at = datetime.now(timezone.utc).isoformat()
+    type_upper = emergency_type.upper()
+
+    # Dispatch SMS via Twilio
+    sms_sent = send_twilio_sos_sms(
+        emergency_type=type_upper,
+        latitude=latitude,
+        longitude=longitude,
+        timestamp=timestamp
+    )
+
+    notification_status = "SENT" if sms_sent else "FAILED"
 
     record = {
         "id": sos_id,
-        "emergency_type": emergency_type.upper(),
+        "emergency_type": type_upper,
         "latitude": latitude,
         "longitude": longitude,
         "timestamp": timestamp,
-        "created_at": created_at
+        "created_at": created_at,
+        "notification_status": notification_status
     }
 
     if is_vercel():
         _memory_sos_store.append(record)
-        return {
-            "success": True,
-            "sos_id": sos_id,
-            "status": "RECEIVED"
-        }
-
-    init_sos_table()
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO sos_requests (id, emergency_type, latitude, longitude, timestamp, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (record["id"], record["emergency_type"], record["latitude"], record["longitude"], record["timestamp"], record["created_at"]))
-    conn.commit()
-    conn.close()
+    else:
+        init_sos_table()
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO sos_requests (id, emergency_type, latitude, longitude, timestamp, created_at, notification_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (record["id"], record["emergency_type"], record["latitude"], record["longitude"], record["timestamp"], record["created_at"], record["notification_status"]))
+        conn.commit()
+        conn.close()
 
     return {
-        "success": True,
+        "success": sms_sent,
         "sos_id": sos_id,
-        "status": "RECEIVED"
+        "status": "RECEIVED",
+        "notification_status": notification_status
     }
