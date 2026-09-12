@@ -6,7 +6,7 @@
 import { state } from './state.js';
 import { HeaderComponent } from './components/header.js';
 import { HomePage } from './pages/home-page.js';
-import { RiskDashboardPage } from './pages/risk-dashboard-page.js';
+import { RiskDashboardPage } from './pages/risk-dashboard-page.js?v=realdata_v1';
 import { RiskMapPage } from './pages/risk-map-page.js';
 import { SafeRoutePage } from './pages/safe-route-page.js';
 import { AlertsPage } from './pages/alerts-page.js';

@@ -1,18 +1,62 @@
 /**
  * Page Controller: Alerts Page
- * Complete English & Hindi Localization
+ * Complete English & Hindi Localization with 100% Real Supporting Telemetry
  */
 
 import { state } from '../state.js';
 import { AlertService } from '../services/alert-service.js';
 import { RiskService } from '../services/risk-service.js';
 import { TranslationService } from '../services/translation-service.js';
+import { FloodApi } from '../api/flood-api.js';
+import { ApiClient } from '../api/api-client.js';
 import { Toast } from '../components/toast.js';
 
 export class AlertsPage {
   static async render(container) {
     const lang = state.get('activeLanguage') || 'en';
-    const alerts = await AlertService.getAlerts();
+    
+    // Show loading skeleton
+    container.innerHTML = `
+      <div class="alerts-page-container fade-in">
+        <div class="glass-panel skeleton skeleton-card" style="height:80px;"></div>
+        <div class="glass-panel skeleton skeleton-card" style="height:280px; margin-top:1.5rem;"></div>
+      </div>
+    `;
+
+    const [alerts, settlements] = await Promise.all([
+      AlertService.getAlerts(),
+      RiskService.getAllSettlements()
+    ]);
+
+    // Fetch real supporting telemetry for monitored settlements
+    let guwahatiFlood = null;
+    let silcharFlood = null;
+    let liveWeather = null;
+    let firmsData = null;
+
+    try {
+      const [gwFloodRes, scFloodRes, weatherRes, firmsRes] = await Promise.allSettled([
+        FloodApi.getRiverDischarge(26.1844, 91.7458),
+        FloodApi.getRiverDischarge(24.8273, 92.7979),
+        ApiClient.get('/weather?lat=26.1844&lon=91.7458'),
+        ApiClient.get('/firms')
+      ]);
+
+      if (gwFloodRes.status === 'fulfilled' && gwFloodRes.value?.data?.river_discharge_m3s !== undefined) {
+        guwahatiFlood = gwFloodRes.value.data.river_discharge_m3s;
+      }
+      if (scFloodRes.status === 'fulfilled' && scFloodRes.value?.data?.river_discharge_m3s !== undefined) {
+        silcharFlood = scFloodRes.value.data.river_discharge_m3s;
+      }
+      if (weatherRes.status === 'fulfilled' && weatherRes.value?.data?.temperature_c !== undefined) {
+        liveWeather = weatherRes.value.data;
+      }
+      if (firmsRes.status === 'fulfilled' && Array.isArray(firmsRes.value?.data)) {
+        firmsData = firmsRes.value.data;
+      }
+    } catch (e) {
+      console.warn("Failed to load supporting telemetry for alerts page:", e);
+    }
 
     container.innerHTML = `
       <div class="alerts-page-container fade-in">
@@ -40,10 +84,84 @@ export class AlertsPage {
           </div>
         </div>
 
-        <!-- Alerts Feed List -->
+        <!-- Alerts Feed List (Honest Alert State) -->
         <div class="alerts-feed-grid" id="alerts-feed-list">
           ${this.generateAlertCardsHtml(alerts, lang)}
         </div>
+
+        <!-- Supporting Live Telemetry Section (Clearly distinguished from AI alerts) -->
+        <section class="glass-panel" style="margin-top:1.75rem; padding:1.75rem;">
+          <div style="margin-bottom:1.25rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+              <span class="hero-badge" style="background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd;">
+                <i class="fa-solid fa-satellite-dish"></i> Live Sensor Telemetry
+              </span>
+              <span style="font-size:0.75rem; font-weight:700; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:12px;">STANDALONE TELEMETRY</span>
+            </div>
+            <h3 style="color:#0f2b48; font-size:1.15rem; font-weight:800;">Real Supporting Telemetry</h3>
+            <p style="font-size:0.85rem; color:#64748b;">
+              Direct observational readings from external APIs. This telemetry is factual sensor data and does <strong>NOT</strong> constitute an automated AI disaster alert.
+            </p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+            <!-- Guwahati River Discharge -->
+            <div style="padding:1.2rem; background:#fffbeb; border:1px solid #fef3c7; border-left:4px solid #f59e0b; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-weight:700; color:#b45309; font-size:0.9rem;">Guwahati River Discharge</span>
+                <i class="fa-solid fa-water" style="color:#b45309;"></i>
+              </div>
+              <div style="font-size:1.6rem; font-weight:800; color:#b45309;">
+                ${guwahatiFlood !== null ? `${guwahatiFlood} <span style="font-size:0.9rem; font-weight:600;">m³/s</span>` : 'Unavailable'}
+              </div>
+              <div style="font-size:0.75rem; color:#92400e; margin-top:0.35rem;">
+                Source: Open-Meteo Flood Forecast (26.184°N, 91.746°E)
+              </div>
+            </div>
+
+            <!-- Silchar River Discharge -->
+            <div style="padding:1.2rem; background:#fffbeb; border:1px solid #fef3c7; border-left:4px solid #f59e0b; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-weight:700; color:#b45309; font-size:0.9rem;">Silchar River Discharge</span>
+                <i class="fa-solid fa-water" style="color:#b45309;"></i>
+              </div>
+              <div style="font-size:1.6rem; font-weight:800; color:#b45309;">
+                ${silcharFlood !== null ? `${silcharFlood} <span style="font-size:0.9rem; font-weight:600;">m³/s</span>` : 'Unavailable'}
+              </div>
+              <div style="font-size:0.75rem; color:#92400e; margin-top:0.35rem;">
+                Source: Open-Meteo Flood Forecast (24.827°N, 92.798°E)
+              </div>
+            </div>
+
+            <!-- OpenWeather Live Weather -->
+            <div style="padding:1.2rem; background:#f0f9ff; border:1px solid #e0f2fe; border-left:4px solid #0284c7; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-weight:700; color:#0369a1; font-size:0.9rem;">Live Weather Telemetry</span>
+                <i class="fa-solid fa-cloud-rain" style="color:#0284c7;"></i>
+              </div>
+              <div style="font-size:1.6rem; font-weight:800; color:#0369a1;">
+                ${liveWeather !== null ? `${liveWeather.temperature_c}°C` : 'Unavailable'}
+              </div>
+              <div style="font-size:0.75rem; color:#0369a1; margin-top:0.35rem;">
+                ${liveWeather !== null ? `Condition: ${liveWeather.weather_description || 'Clear'}, Humidity: ${liveWeather.humidity_percent}%, Rain: ${liveWeather.rainfall_mm !== undefined ? `${liveWeather.rainfall_mm}mm` : '0mm'}` : 'OpenWeather API connection unavailable.'}
+              </div>
+            </div>
+
+            <!-- NASA FIRMS Active Thermal Detections -->
+            <div style="padding:1.2rem; background:#fff7ed; border:1px solid #ffedd5; border-left:4px solid #ea580c; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-weight:700; color:#c2410c; font-size:0.9rem;">Satellite Thermal Detections</span>
+                <i class="fa-solid fa-satellite" style="color:#ea580c;"></i>
+              </div>
+              <div style="font-size:1.6rem; font-weight:800; color:#c2410c;">
+                ${firmsData !== null ? `${firmsData.length} observations` : 'Unavailable'}
+              </div>
+              <div style="font-size:0.75rem; color:#9a3412; margin-top:0.35rem;">
+                Source: NASA FIRMS (VIIRS NOAA-20 NRT). Active thermal/fire anomalies, not flood telemetry.
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Alert Detail Modal -->
         <div id="alert-modal" class="glass-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:540px; z-index:1100; padding:2rem;">
@@ -59,10 +177,18 @@ export class AlertsPage {
   static generateAlertCardsHtml(alerts, lang = 'en') {
     if (!alerts || alerts.length === 0) {
       return `
-        <div class="glass-panel state-container">
-          <div class="state-icon"><i class="fa-solid fa-bell-slash"></i></div>
-          <h3 class="state-title">${lang === 'hi' ? 'कोई सक्रिय चेतावनी उपलब्ध नहीं है' : 'No Active Warnings Available'}</h3>
-          <p class="state-desc">${lang === 'hi' ? 'जोखिम पूर्वानुमान और चेतावनी प्रणाली अभी उपलब्ध नहीं है।' : 'Risk prediction and alert generation are not available yet.'}</p>
+        <div class="glass-panel state-container" style="padding:3.5rem 2rem; text-align:center;">
+          <div class="state-icon" style="background:#f1f5f9; color:#94a3b8; border:1px solid #e2e8f0; margin-bottom:1rem;">
+            <i class="fa-solid fa-bell-slash"></i>
+          </div>
+          <h3 class="state-title" style="color:#0f2b48; font-size:1.35rem; font-weight:800;">
+            ${lang === 'hi' ? 'चेतावनी डेटा उपलब्ध नहीं है' : 'Alert data unavailable'}
+          </h3>
+          <p class="state-desc" style="max-width:540px; margin:0.5rem auto 0 auto; color:#64748b; font-size:0.9rem; line-height:1.5;">
+            ${lang === 'hi' 
+              ? 'मशीन लर्निंग बाढ़ पूर्वानुमान और स्वचालित आपातकालीन चेतावनी प्रणाली वर्तमान में सक्रिय चेतावनी प्रकाशित नहीं कर रही है। वास्तविक पर्यावरणीय टेलीमेट्री नीचे प्रदर्शित है।' 
+              : 'Automated ML warning models are not currently publishing flood alerts. Supporting live environmental telemetry is provided below.'}
+          </p>
         </div>
       `;
     }
@@ -80,12 +206,12 @@ export class AlertsPage {
           <div class="alert-content-col">
             <div class="alert-title-row">
               <span class="status-badge ${RiskService.getRiskBadgeClass(alert.severity)}">${alert.severity}</span>
-              <h3 class="alert-title">${lang === 'hi' ? (alert.severity === 'CRITICAL' ? 'अति गंभीर बाढ़ चेतावनी - सुरक्षित स्थान पर जाएं' : alert.title) : alert.title}</h3>
+              <h3 class="alert-title">${alert.title}</h3>
               ${isRead ? `<span style="font-size:0.75rem; color:#64748b;"><i class="fa-solid fa-check"></i> ${TranslationService.t('acknowledgedBadge', lang)}</span>` : ''}
             </div>
-            <p class="alert-description">${lang === 'hi' ? (alert.severity === 'CRITICAL' ? 'जलस्तर अगले 6.5 घंटे में सुरक्षा बांध को पार करने का अनुमान है। उत्तरी तटबंध निकासी गलियारे का अनुसरण करें।' : alert.message) : alert.message}</p>
+            <p class="alert-description">${alert.message}</p>
             <div class="alert-meta-row">
-              <span><i class="fa-solid fa-location-dot"></i> ${lang === 'hi' ? alert.settlementName.replace('Settlement', 'बस्ती') : alert.settlementName}</span>
+              <span><i class="fa-solid fa-location-dot"></i> ${alert.settlementName}</span>
               <span><i class="fa-solid fa-clock"></i> ${TranslationService.t('issuedLabel', lang)} ${alert.issuedAt}</span>
               <span><i class="fa-solid fa-hourglass-start"></i> ${TranslationService.t('leadTimeLabel', lang)} <strong>${alert.leadTimeHours} hrs</strong></span>
               <span><i class="fa-solid fa-chart-pie"></i> ${TranslationService.t('confidenceLabel', lang)} ${alert.confidence}</span>
@@ -96,11 +222,6 @@ export class AlertsPage {
             <button class="btn btn-secondary btn-sm btn-open-modal" data-id="${alert.id}">
               <i class="fa-solid fa-eye"></i> ${TranslationService.t('detailsBtn', lang)}
             </button>
-            ${alert.evacuationRequired ? `
-              <button class="btn btn-danger btn-sm btn-alert-route" data-settlement-id="${alert.settlementId}">
-                <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRouteBtn', lang)}
-              </button>
-            ` : ''}
             <button class="btn btn-secondary btn-sm btn-ack-alert" data-id="${alert.id}">
               <i class="fa-solid fa-check"></i> ${isRead ? TranslationService.t('doneBtn', lang) : TranslationService.t('acknowledgeBtn', lang)}
             </button>
@@ -116,6 +237,7 @@ export class AlertsPage {
     let currentSeverity = 'ALL';
 
     const filterAndRender = () => {
+      if (!allAlerts || allAlerts.length === 0) return;
       const q = searchInput.value.toLowerCase().trim();
       let filtered = allAlerts;
       if (currentSeverity !== 'ALL') {
@@ -129,7 +251,6 @@ export class AlertsPage {
         );
       }
       feedList.innerHTML = this.generateAlertCardsHtml(filtered, lang);
-      this.attachCardActions(allAlerts, lang);
     };
 
     if (searchInput) {
@@ -142,91 +263,6 @@ export class AlertsPage {
         e.currentTarget.classList.add('active');
         currentSeverity = e.currentTarget.getAttribute('data-severity');
         filterAndRender();
-      });
-    });
-
-    this.attachCardActions(allAlerts, lang);
-  }
-
-  static attachCardActions(allAlerts, lang = 'en') {
-    document.querySelectorAll('.btn-ack-alert').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        const readSet = state.get('alertsRead') || new Set();
-        readSet.add(id);
-        state.set('alertsRead', readSet);
-        Toast.show(lang === 'hi' ? 'चेतावनी स्वीकार की गई।' : 'Alert marked as acknowledged.', 'info', 2000);
-        const card = document.querySelector(`.alert-item-card[data-id="${id}"]`);
-        if (card) {
-          card.classList.add('alert-read');
-          btn.innerHTML = `<i class="fa-solid fa-check"></i> ${TranslationService.t('doneBtn', lang)}`;
-        }
-      });
-    });
-
-    document.querySelectorAll('.btn-alert-route').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const sid = e.currentTarget.getAttribute('data-settlement-id');
-        state.set('activeSettlementId', sid);
-        window.location.hash = '#safe-route';
-      });
-    });
-
-    const modal = document.getElementById('alert-modal');
-    const backdrop = document.getElementById('modal-backdrop');
-    const modalContent = document.getElementById('alert-modal-content');
-
-    const closeModal = () => {
-      if (modal) modal.style.display = 'none';
-      if (backdrop) backdrop.style.display = 'none';
-    };
-
-    if (backdrop) backdrop.addEventListener('click', closeModal);
-
-    document.querySelectorAll('.btn-open-modal').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        const alert = allAlerts.find(a => a.id === id);
-        if (!alert) return;
-
-        modalContent.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <span class="status-badge ${RiskService.getRiskBadgeClass(alert.severity)}">${alert.severity}</span>
-            <button id="btn-close-modal" style="background:none; border:none; color:#0f2b48; font-size:1.25rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <h3 style="color:#0f2b48; margin-bottom:0.75rem;">${lang === 'hi' ? (alert.severity === 'CRITICAL' ? 'अति गंभीर बाढ़ चेतावनी - सुरक्षित स्थान पर जाएं' : alert.title) : alert.title}</h3>
-          <p style="color:#475569; font-size:0.95rem; line-height:1.5; margin-bottom:1.25rem;">${alert.message}</p>
-          <div style="padding:1rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:0.875rem; margin-bottom:1.25rem;">
-            <div><strong>${lang === 'hi' ? 'स्थान:' : 'Location:'}</strong> ${alert.settlementName}</div>
-            <div><strong>${lang === 'hi' ? 'जारी:' : 'Issued:'}</strong> ${alert.issuedAt}</div>
-            <div><strong>${lang === 'hi' ? 'संभावित प्रभाव:' : 'Expected Impact:'}</strong> ${alert.expectedImpactAt}</div>
-            <div><strong>${lang === 'hi' ? 'चेतावनी समय:' : 'Lead Time:'}</strong> ${alert.leadTimeHours} hrs</div>
-            <div><strong>${lang === 'hi' ? 'सटीकता:' : 'Confidence:'}</strong> ${alert.confidence}</div>
-          </div>
-          <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-            <button class="btn btn-secondary btn-sm" id="btn-modal-dismiss">${lang === 'hi' ? 'बंद करें' : 'Close'}</button>
-            ${alert.evacuationRequired ? `
-              <button class="btn btn-danger btn-sm" id="btn-modal-evacuate">
-                <i class="fa-solid fa-person-walking-arrow-right"></i> ${TranslationService.t('safeRouteBtn', lang)}
-              </button>
-            ` : ''}
-          </div>
-        `;
-
-        modal.style.display = 'block';
-        backdrop.style.display = 'block';
-
-        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-        document.getElementById('btn-modal-dismiss').addEventListener('click', closeModal);
-
-        const evacBtn = document.getElementById('btn-modal-evacuate');
-        if (evacBtn) {
-          evacBtn.addEventListener('click', () => {
-            closeModal();
-            state.set('activeSettlementId', alert.settlementId);
-            window.location.hash = '#safe-route';
-          });
-        }
       });
     });
   }

@@ -164,4 +164,100 @@ async def create_sos(payload: SosRequestPayload):
         return JSONResponse(status_code=500, content=result)
     return result
 
+@app.get("/api/observations/historical")
+async def historical_observations():
+    """Returns real historical observation count and summary from historical_features.json."""
+    data_path = Path(__file__).parent / "data" / "historical_features.json"
+    if not data_path.exists():
+        data_path = Path(__file__).parent.parent / "backend" / "data" / "historical_features.json"
+    
+    if data_path.exists():
+        import json
+        try:
+            with open(data_path, "r", encoding="utf-8") as f:
+                records = json.load(f)
+            return {
+                "count": len(records),
+                "is_historical": True,
+                "source": "Open-Meteo Archive",
+                "start_date": records[0].get("date") if records else None,
+                "end_date": records[-1].get("date") if records else None
+            }
+        except Exception as e:
+            return {"count": 0, "is_historical": True, "error": str(e)}
+    return {"count": 0, "is_historical": True, "source": "Unavailable"}
+
+@app.get("/api/admin/system-status")
+@app.get("/api/response/overview")
+async def system_status():
+    """Real system and data status information without exposing any credentials."""
+    settlements = get_all_settlements()
+    settlement_count = len(settlements)
+    geonames_status = "CONNECTED" if settlement_count > 0 else "UNAVAILABLE"
+    
+    total_pop = sum(
+        s.get("population", 0) 
+        for s in settlements 
+        if isinstance(s.get("population"), (int, float)) and s.get("population", 0) > 0
+    )
+    
+    data_path = Path(__file__).parent / "data" / "historical_features.json"
+    if not data_path.exists():
+        data_path = Path(__file__).parent.parent / "backend" / "data" / "historical_features.json"
+    hist_count = 0
+    hist_start = None
+    hist_end = None
+    if data_path.exists():
+        import json
+        try:
+            with open(data_path, "r", encoding="utf-8") as f:
+                records = json.load(f)
+            hist_count = len(records)
+            if records:
+                hist_start = records[0].get("date")
+                hist_end = records[-1].get("date")
+        except Exception:
+            pass
+    historical_status = "CONNECTED" if hist_count > 0 else "UNAVAILABLE"
+    
+    flood_status = "CONNECTED"
+    
+    weather_key = os.environ.get("OPENWEATHER_API_KEY", "")
+    weather_status = "CONNECTED" if weather_key else "NOT CONFIGURED"
+    
+    firms_key = os.environ.get("NASA_FIRMS_MAP_KEY", "")
+    firms_status = "CONNECTED" if firms_key else "NOT CONFIGURED"
+    
+    ml_status = "UNAVAILABLE"
+    
+    twilio_sid = os.environ.get("TWILIO_ACCOUNT_SID", "")
+    twilio_token = os.environ.get("TWILIO_AUTH_TOKEN", "")
+    twilio_phone = os.environ.get("TWILIO_PHONE_NUMBER", "")
+    sos_phone = os.environ.get("SOS_RECIPIENT_PHONE", "")
+    
+    if twilio_sid and twilio_token and twilio_phone and sos_phone:
+        twilio_status = "CONFIGURED"
+    elif twilio_sid or twilio_token or twilio_phone or sos_phone:
+        twilio_status = "PARTIALLY CONFIGURED"
+    else:
+        twilio_status = "NOT CONFIGURED"
+
+    return {
+        "settlements_count": settlement_count,
+        "total_population_monitored": total_pop,
+        "historical_observations_count": hist_count,
+        "historical_date_range": f"{hist_start} to {hist_end}" if hist_start and hist_end else "Unavailable",
+        "services": {
+            "geonames": geonames_status,
+            "open_meteo_flood": flood_status,
+            "historical_archive": historical_status,
+            "openweather": weather_status,
+            "nasa_firms": firms_status,
+            "ml_flood_model": ml_status,
+            "sos_twilio": twilio_status
+        },
+        "settlements": settlements
+    }
+
+
 

@@ -122,24 +122,19 @@ export class RiskMarkers {
         ${badgeHtml}
       </div>
       <div class="map-popup-body">
-        <div><strong>Hazard:</strong> ${hazardText}</div>
-        <div><strong>Risk Score:</strong> ${riskScoreText}</div>
-        <div><strong>River Discharge:</strong> ${dischargeText}</div>
-        <div><strong>Estimated Lead Time:</strong> ${leadTimeText}</div>
-        <div><strong>Confidence:</strong> ${confidenceText}</div>
+        <div><strong>Coordinates:</strong> ${Number(settlement.latitude).toFixed(4)}°N, ${Number(settlement.longitude).toFixed(4)}°E</div>
         <div><strong>Population:</strong> ${populationText}</div>
-        <div style="margin-top:0.4rem;font-size:0.75rem;color:#94a3b8;">
-          <div>Settlement: GeoNames</div>
-          <div>River data: Open-Meteo Flood Forecast</div>
+        <div><strong>Live River Discharge:</strong> ${dischargeText}</div>
+        <div><strong>Risk Score:</strong> ${riskScoreText}</div>
+        ${hasRealScore && settlement.leadTimeHours !== undefined ? `<div><strong>Estimated Lead Time:</strong> ${leadTimeText}</div>` : ''}
+        ${hasRealScore && settlement.confidence ? `<div><strong>Confidence:</strong> ${confidenceText}</div>` : ''}
+        <div style="margin-top:0.45rem; font-size:0.75rem; color:#64748b; border-top:1px solid #e2e8f0; padding-top:0.35rem;">
+          <div>Source: GeoNames</div>
+          <div>Source: Open-Meteo Flood Forecast</div>
         </div>
       </div>
       <div class="map-popup-action" style="display:flex; gap:0.5rem; margin-top:0.75rem;">
         ${viewRiskBtn}
-        ${settlement.evacuationRequired ? `
-          <button class="btn btn-danger btn-sm popup-route-btn" style="flex:1;">
-            <i class="fa-solid fa-person-walking-arrow-right"></i> Safe Route
-          </button>
-        ` : ''}
       </div>
     `;
 
