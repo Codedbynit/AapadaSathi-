@@ -59,7 +59,17 @@ def send_twilio_sos_sms(emergency_type: str, latitude: Optional[float], longitud
     to_number = os.getenv("SOS_RECIPIENT_PHONE", "").strip()
 
     if not account_sid or not auth_token or not from_number or not to_number:
-        print("[Twilio SMS] Missing required environment variables")
+        # Diagnostic logging for missing env vars (values are not printed for security)
+        missing = []
+        if not account_sid:
+            missing.append('TWILIO_ACCOUNT_SID')
+        if not auth_token:
+            missing.append('TWILIO_AUTH_TOKEN')
+        if not from_number:
+            missing.append('TWILIO_PHONE_NUMBER')
+        if not to_number:
+            missing.append('SOS_RECIPIENT_PHONE')
+        print(f"[Twilio SMS] Missing environment variables: {', '.join(missing)}")
         return False
 
     try:
@@ -89,7 +99,16 @@ def send_twilio_sos_sms(emergency_type: str, latitude: Optional[float], longitud
             return True
         return False
     except Exception as exc:
-        print(f"[Twilio SMS] Dispatch failed: {type(exc).__name__}")
+        # Capture detailed Twilio error information if available
+        try:
+            # Twilio REST exceptions typically have .code, .msg, .status attributes
+            error_code = getattr(exc, 'code', None)
+            error_msg = getattr(exc, 'msg', str(exc))
+            http_status = getattr(exc, 'status', None)
+            print(f"[Twilio SMS] Dispatch failed: {type(exc).__name__}, code={error_code}, status={http_status}, message={error_msg}")
+        except Exception:
+            # Fallback if attributes are not present
+            print(f"[Twilio SMS] Dispatch failed: {type(exc).__name__}: {exc}")
         return False
 
 def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: Optional[float], timestamp: str) -> Dict[str, Any]:
@@ -112,6 +131,9 @@ def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: 
     to_number = os.getenv("SOS_RECIPIENT_PHONE", "").strip()
 
     is_twilio_configured = bool(account_sid and auth_token and from_number and to_number)
+    # Diagnostic logging for environment configuration and runtime context
+    print(f"[SOS] Twilio config - SID set: {bool(account_sid)}, Token set: {bool(auth_token)}, From set: {bool(from_number)}, To set: {bool(to_number)}")
+    print(f"[SOS] Running on Vercel: {is_vercel()}")
 
     if is_twilio_configured:
         sms_sent = send_twilio_sos_sms(
