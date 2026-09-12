@@ -1,8 +1,4 @@
-/**
- * AapadaSathi Emergency SOS Modal Component
- * Step 1 of SOS Feature: Modal flow + Real Browser Geolocation + Local Prepared Payload.
- * NO SMS, NO Twilio, NO fake locations, NO automatic emergency calls.
- */
+import { ApiClient } from '../api/api-client.js';
 
 export class SosModal {
   static currentStep = 1;
@@ -200,26 +196,42 @@ export class SosModal {
     });
 
     document.getElementById('btn-sos-cancel-2')?.addEventListener('click', () => this.close());
-    confirmBtn?.addEventListener('click', () => {
+    confirmBtn?.addEventListener('click', async () => {
       if (!this.selectedEmergencyType) return;
 
-      // Construct local in-memory SOS payload for testing only
-      this.preparedPayload = {
-        emergency_type: this.selectedEmergencyType,
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+      const payload = {
+        emergency_type: this.selectedEmergencyType.toUpperCase(),
         latitude: this.realLat,
         longitude: this.realLon,
         timestamp: this.generatedTimestamp
       };
 
-      console.log('[SOS Prepared Payload]:', this.preparedPayload);
-      this.renderStep3();
+      try {
+        const response = await ApiClient.post('/sos', payload);
+        if (response.data && response.data.success) {
+          this.preparedPayload = {
+            ...payload,
+            sos_id: response.data.sos_id,
+            status: response.data.status
+          };
+          this.renderStep3Success();
+        } else {
+          this.renderStep3Error('SOS request could not be submitted.');
+        }
+      } catch (err) {
+        console.warn('[SosModal] Backend submission failed:', err);
+        this.renderStep3Error('SOS request could not be submitted.');
+      }
     });
   }
 
-  static renderStep3() {
+  static renderStep3Success() {
     const body = document.getElementById('sos-modal-body');
     const headerText = document.getElementById('sos-header-text');
-    if (headerText) headerText.innerText = 'SOS PREPARED';
+    if (headerText) headerText.innerText = 'SOS RECEIVED';
 
     if (!body || !this.preparedPayload) return;
 
@@ -232,18 +244,44 @@ export class SosModal {
         <div style="width:48px; height:48px; border-radius:50%; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 0.75rem;">
           <i class="fa-solid fa-check"></i>
         </div>
-        <h3 style="font-size:1.1rem; font-weight:800; color:#166534; margin-bottom:0.25rem;">SOS request prepared</h3>
-        <p style="font-size:0.825rem; color:#15803d; font-weight:600;">SMS sending will be connected in the next step.</p>
+        <h3 style="font-size:1.1rem; font-weight:800; color:#166534; margin-bottom:0.25rem;">SOS request received</h3>
+        <p style="font-size:0.825rem; color:#15803d; font-weight:600;">SMS notification is not connected yet.</p>
       </div>
 
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:1rem; border-radius:var(--radius-md); font-size:0.85rem; color:#334155; display:flex; flex-direction:column; gap:0.4rem;">
+        <div><strong>SOS Reference ID:</strong> ${this.preparedPayload.sos_id || 'N/A'}</div>
         <div><strong>Emergency Type:</strong> ${this.preparedPayload.emergency_type}</div>
         <div><strong>Location:</strong> ${locText}</div>
         <div><strong>Timestamp:</strong> ${this.preparedPayload.timestamp}</div>
+        <div><strong>Status:</strong> RECEIVED</div>
       </div>
 
       <div style="margin-top:0.5rem;">
         <button type="button" class="btn btn-primary" id="btn-sos-close" style="width:100%;">Close</button>
+      </div>
+    `;
+
+    document.getElementById('btn-sos-close')?.addEventListener('click', () => this.close());
+  }
+
+  static renderStep3Error(errorMessage) {
+    const body = document.getElementById('sos-modal-body');
+    const headerText = document.getElementById('sos-header-text');
+    if (headerText) headerText.innerText = 'SOS SUBMISSION FAILED';
+
+    if (!body) return;
+
+    body.innerHTML = `
+      <div style="background:#fef2f2; border:1px solid #fecaca; padding:1.25rem; border-radius:var(--radius-md); text-align:center;">
+        <div style="width:48px; height:48px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 0.75rem;">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <h3 style="font-size:1.1rem; font-weight:800; color:#991b1b; margin-bottom:0.25rem;">${errorMessage || 'SOS request could not be submitted.'}</h3>
+        <p style="font-size:0.825rem; color:#b91c1c; font-weight:600;">Please call emergency helpline (112) for immediate assistance.</p>
+      </div>
+
+      <div style="margin-top:0.5rem;">
+        <button type="button" class="btn btn-secondary" id="btn-sos-close" style="width:100%;">Close</button>
       </div>
     `;
 

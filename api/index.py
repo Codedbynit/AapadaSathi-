@@ -14,10 +14,48 @@ for env_name in [".env.local", ".env"]:
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, validator
 from api.services.weather import get_weather_data
 from api.services.flood import get_flood_data
 from api.services.settlements import init_db, get_all_settlements, get_settlement
 from api.services.firms import get_firms_data
+from api.services.sos import save_sos_request
+
+class SosRequestPayload(BaseModel):
+    emergency_type: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    timestamp: str
+
+    @validator('emergency_type')
+    def validate_emergency_type(cls, v):
+        if not v or not isinstance(v, str):
+            raise ValueError("emergency_type is required")
+        v_upper = v.strip().upper()
+        allowed = {"FLOOD", "FIRE", "MEDICAL", "OTHER"}
+        if v_upper not in allowed:
+            raise ValueError(f"Invalid emergency_type '{v}'. Must be one of: FLOOD, FIRE, MEDICAL, OTHER")
+        return v_upper
+
+    @validator('latitude')
+    def validate_latitude(cls, v):
+        if v is not None:
+            if not isinstance(v, (int, float)) or v < -90.0 or v > 90.0:
+                raise ValueError("Latitude must be a valid number between -90 and 90")
+        return v
+
+    @validator('longitude')
+    def validate_longitude(cls, v):
+        if v is not None:
+            if not isinstance(v, (int, float)) or v < -180.0 or v > 180.0:
+                raise ValueError("Longitude must be a valid number between -180 and 180")
+        return v
+
+    @validator('timestamp')
+    def validate_timestamp(cls, v):
+        if not v or not isinstance(v, str) or len(v.strip()) == 0:
+            raise ValueError("Timestamp is required")
+        return v.strip()
 
 app = FastAPI(title="SetuAlert Backend")
 
@@ -108,4 +146,18 @@ async def firms(
         day_range=day_range
     )
     return data
+
+@app.post("/api/sos")
+async def create_sos(payload: SosRequestPayload):
+    """Receive emergency SOS request, validate fields, and persist to database.
+    Does NOT send SMS or contact emergency services yet.
+    """
+    result = save_sos_request(
+        emergency_type=payload.emergency_type,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        timestamp=payload.timestamp
+    )
+    return result
+
 
