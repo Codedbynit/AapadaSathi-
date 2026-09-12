@@ -65,32 +65,76 @@ export class RiskMarkers {
    * Bind rich interactive popup to settlement marker
    */
   static bindPopup(marker, settlement, onSelectSettlement, onNavigateSafeRoute) {
-    const level = settlement.riskLevel || 'LOW';
-    let badgeClass = 'badge-low';
-    if (level === 'CRITICAL') badgeClass = 'badge-critical';
-    else if (level === 'HIGH') badgeClass = 'badge-high';
-    else if (level === 'MODERATE') badgeClass = 'badge-moderate';
+    // ── Severity badge ────────────────────────────────────────────────────────
+    // Only show a severity label when a REAL riskScore (0-100) exists.
+    // If riskScore is absent the badge must say "Risk: Unavailable" — never
+    // fabricate LOW/MODERATE/HIGH/CRITICAL from a missing or default value.
+    const hasRealScore = settlement.riskScore !== undefined && settlement.riskScore !== null;
+    let badgeHtml;
+    if (hasRealScore) {
+      const level = (settlement.riskLevel || 'LOW').toUpperCase();
+      const badgeClassMap = { CRITICAL: 'badge-critical', HIGH: 'badge-high', MODERATE: 'badge-moderate', LOW: 'badge-low' };
+      const badgeClass = badgeClassMap[level] || 'badge-low';
+      badgeHtml = `<span class="status-badge ${badgeClass}">${level}</span>`;
+    } else {
+      badgeHtml = `<span class="status-badge badge-unavailable" style="background:#94a3b8;color:#fff;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:999px;">Risk: Unavailable</span>`;
+    }
+
+    // ── Field values — only show real data ────────────────────────────────────
+    const riskScoreText = hasRealScore
+      ? `${settlement.riskScore}/100`
+      : 'Unavailable';
+
+    const dischargeText = (settlement.river_discharge_m3s !== null && settlement.river_discharge_m3s !== undefined)
+      ? `${settlement.river_discharge_m3s} m³/s`
+      : 'Unavailable';
+
+    const leadTimeText = (settlement.leadTimeHours !== undefined && settlement.leadTimeHours !== null)
+      ? `${settlement.leadTimeHours} hrs`
+      : 'Unavailable';
+
+    const confidenceText = (settlement.confidence !== undefined && settlement.confidence !== null && settlement.confidence !== '')
+      ? settlement.confidence
+      : 'Unavailable';
+
+    // Hazard: use a neutral monitoring label when no confirmed hazard exists
+    const hazardText = settlement.hazardType || 'Flood monitoring';
+
+    // Population from GeoNames (only show if genuinely provided)
+    const populationText = (settlement.population !== undefined && settlement.population !== null)
+      ? settlement.population.toLocaleString()
+      : 'Unavailable';
+
+    // View Risk button: disabled with tooltip when no real score exists
+    const viewRiskBtn = hasRealScore
+      ? `<button class="btn btn-primary btn-sm popup-view-btn" style="flex:1;">
+           <i class="fa-solid fa-chart-line"></i> View Risk
+         </button>`
+      : `<button class="btn btn-secondary btn-sm popup-view-btn" style="flex:1;opacity:0.55;cursor:not-allowed;" disabled title="Risk score unavailable — model not yet trained">
+           <i class="fa-solid fa-chart-line"></i> Risk Unavailable
+         </button>`;
 
     const content = document.createElement('div');
     content.className = 'map-popup-inner';
     content.innerHTML = `
       <div class="map-popup-header">
         <span class="map-popup-title">${settlement.name}</span>
-        <span class="status-badge ${badgeClass}">${level || 'Unavailable'}</span>
+        ${badgeHtml}
       </div>
       <div class="map-popup-body">
-        <div><strong>Hazard:</strong> ${settlement.hazardType || 'Unknown'}</div>
-        <div><strong>Risk Score:</strong> ${settlement.riskScore !== undefined ? settlement.riskScore + '/100' : 'N/A'}</div>
-        <div><strong>River Discharge:</strong> ${settlement.river_discharge_m3s !== null && settlement.river_discharge_m3s !== undefined ? settlement.river_discharge_m3s + ' m³/s' : 'Unavailable'}</div>
-        <div><strong>Estimated Lead Time:</strong> <span style="color:#38bdf8; font-weight:bold;">${settlement.leadTimeHours !== undefined ? settlement.leadTimeHours + ' hrs' : 'N/A'}</span></div>
-        <div><strong>Confidence:</strong> ${settlement.confidence || 'N/A'}</div>
-        <div><strong>Population:</strong> ${settlement.population.toLocaleString()}</div>
-        <div><strong>Data Source:</strong> Open-Meteo Flood Forecast</div>
+        <div><strong>Hazard:</strong> ${hazardText}</div>
+        <div><strong>Risk Score:</strong> ${riskScoreText}</div>
+        <div><strong>River Discharge:</strong> ${dischargeText}</div>
+        <div><strong>Estimated Lead Time:</strong> ${leadTimeText}</div>
+        <div><strong>Confidence:</strong> ${confidenceText}</div>
+        <div><strong>Population:</strong> ${populationText}</div>
+        <div style="margin-top:0.4rem;font-size:0.75rem;color:#94a3b8;">
+          <div>Settlement: GeoNames</div>
+          <div>River data: Open-Meteo Flood Forecast</div>
+        </div>
       </div>
       <div class="map-popup-action" style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-        <button class="btn btn-primary btn-sm popup-view-btn" style="flex:1;">
-          <i class="fa-solid fa-chart-line"></i> View Risk
-        </button>
+        ${viewRiskBtn}
         ${settlement.evacuationRequired ? `
           <button class="btn btn-danger btn-sm popup-route-btn" style="flex:1;">
             <i class="fa-solid fa-person-walking-arrow-right"></i> Safe Route
