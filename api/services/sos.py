@@ -93,27 +93,36 @@ def send_twilio_sos_sms(emergency_type: str, latitude: Optional[float], longitud
         return False
 
 def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: Optional[float], timestamp: str) -> Dict[str, Any]:
-    """Saves SOS request to SQLite/in-memory store, dispatches Twilio SMS, and returns result status.
+    """Saves SOS request to SQLite/in-memory store, dispatches Twilio SMS (if configured), and returns result status.
 
     Returns
     -------
     Dict[str, Any]
-        If Twilio succeeds: { "success": True, "sos_id": "...", "status": "RECEIVED", "notification_status": "SENT" }
-        If Twilio fails: { "success": False, "sos_id": "...", "status": "RECEIVED", "notification_status": "FAILED" }
+        If Twilio configured & succeeds: { "success": True, "sos_id": "...", "status": "RECEIVED", "notification_status": "SENT" }
+        If Twilio configured & fails: { "success": True, "sos_id": "...", "status": "RECEIVED", "notification_status": "FAILED" }
+        If Twilio not configured: { "success": True, "sos_id": "...", "status": "RECEIVED", "notification_status": "NOT_CONFIGURED" }
     """
     sos_id = f"sos-{uuid.uuid4().hex[:8]}"
     created_at = datetime.now(timezone.utc).isoformat()
     type_upper = emergency_type.upper()
 
-    # Dispatch SMS via Twilio
-    sms_sent = send_twilio_sos_sms(
-        emergency_type=type_upper,
-        latitude=latitude,
-        longitude=longitude,
-        timestamp=timestamp
-    )
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+    from_number = os.getenv("TWILIO_PHONE_NUMBER", "").strip()
+    to_number = os.getenv("SOS_RECIPIENT_PHONE", "").strip()
 
-    notification_status = "SENT" if sms_sent else "FAILED"
+    is_twilio_configured = bool(account_sid and auth_token and from_number and to_number)
+
+    if is_twilio_configured:
+        sms_sent = send_twilio_sos_sms(
+            emergency_type=type_upper,
+            latitude=latitude,
+            longitude=longitude,
+            timestamp=timestamp
+        )
+        notification_status = "SENT" if sms_sent else "FAILED"
+    else:
+        notification_status = "NOT_CONFIGURED"
 
     record = {
         "id": sos_id,
@@ -139,7 +148,7 @@ def save_sos_request(emergency_type: str, latitude: Optional[float], longitude: 
         conn.close()
 
     return {
-        "success": sms_sent,
+        "success": True,
         "sos_id": sos_id,
         "status": "RECEIVED",
         "notification_status": notification_status

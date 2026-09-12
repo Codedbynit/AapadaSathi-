@@ -212,36 +212,40 @@ export class SosModal {
       try {
         const response = await ApiClient.post('/sos', payload);
         const data = response.data || {};
-        if (data.success) {
+        if (data.success || data.sos_id) {
           this.preparedPayload = {
             ...payload,
             sos_id: data.sos_id,
-            status: data.status,
-            notification_status: data.notification_status
+            status: data.status || 'RECEIVED',
+            notification_status: data.notification_status || 'NOT_CONFIGURED'
           };
-          this.renderStep3Success();
-        } else if (data.sos_id && data.notification_status === 'FAILED') {
-          this.preparedPayload = {
-            ...payload,
-            sos_id: data.sos_id,
-            status: data.status,
-            notification_status: data.notification_status
-          };
-          this.renderStep3Failed('SOS request was received, but the SMS could not be sent.');
+          if (data.notification_status === 'SENT') {
+            this.renderStep3Success();
+          } else if (data.notification_status === 'NOT_CONFIGURED') {
+            this.renderStep3NotConfigured();
+          } else if (data.notification_status === 'FAILED') {
+            this.renderStep3Failed('SOS request received, but SMS notification failed.');
+          } else {
+            this.renderStep3NotConfigured();
+          }
         } else {
           this.renderStep3Error('SOS request could not be submitted.');
         }
       } catch (err) {
         console.warn('[SosModal] Backend submission failed:', err);
         const data = err.response?.data || {};
-        if (data.sos_id && data.notification_status === 'FAILED') {
+        if (data.sos_id) {
           this.preparedPayload = {
             ...payload,
             sos_id: data.sos_id,
-            status: data.status,
-            notification_status: data.notification_status
+            status: data.status || 'RECEIVED',
+            notification_status: data.notification_status || 'NOT_CONFIGURED'
           };
-          this.renderStep3Failed('SOS request was received, but the SMS could not be sent.');
+          if (data.notification_status === 'NOT_CONFIGURED') {
+            this.renderStep3NotConfigured();
+          } else {
+            this.renderStep3Failed('SOS request received, but SMS notification failed.');
+          }
         } else {
           this.renderStep3Error('SOS request could not be submitted.');
         }
@@ -286,7 +290,44 @@ export class SosModal {
     document.getElementById('btn-sos-close')?.addEventListener('click', () => this.close());
   }
 
-  static renderStep3Failed(message = 'SOS request was received, but the SMS could not be sent.') {
+  static renderStep3NotConfigured() {
+    const body = document.getElementById('sos-modal-body');
+    const headerText = document.getElementById('sos-header-text');
+    if (headerText) headerText.innerText = 'SOS RECEIVED';
+
+    if (!body || !this.preparedPayload) return;
+
+    const locText = (this.preparedPayload.latitude !== null && this.preparedPayload.longitude !== null)
+      ? `Latitude: ${this.preparedPayload.latitude}, Longitude: ${this.preparedPayload.longitude}`
+      : 'Location permission was denied. SOS location is unavailable.';
+
+    body.innerHTML = `
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:1.25rem; border-radius:var(--radius-md); text-align:center;">
+        <div style="width:48px; height:48px; border-radius:50%; background:#dcfce7; color:#166534; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto 0.75rem;">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 style="font-size:1.1rem; font-weight:800; color:#166534; margin-bottom:0.25rem;">SOS request received.</h3>
+        <p style="font-size:0.825rem; color:#15803d; font-weight:600;">SMS notification is not configured yet.</p>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:1rem; border-radius:var(--radius-md); font-size:0.85rem; color:#334155; display:flex; flex-direction:column; gap:0.4rem;">
+        <div><strong>SOS Reference ID:</strong> ${this.preparedPayload.sos_id || 'N/A'}</div>
+        <div><strong>Emergency Type:</strong> ${this.preparedPayload.emergency_type}</div>
+        <div><strong>Location:</strong> ${locText}</div>
+        <div><strong>Timestamp:</strong> ${this.preparedPayload.timestamp}</div>
+        <div><strong>Status:</strong> RECEIVED</div>
+        <div><strong>Notification Status:</strong> NOT_CONFIGURED</div>
+      </div>
+
+      <div style="margin-top:0.5rem;">
+        <button type="button" class="btn btn-primary" id="btn-sos-close" style="width:100%;">Close</button>
+      </div>
+    `;
+
+    document.getElementById('btn-sos-close')?.addEventListener('click', () => this.close());
+  }
+
+  static renderStep3Failed(message = 'SOS request received, but SMS notification failed.') {
     const body = document.getElementById('sos-modal-body');
     const headerText = document.getElementById('sos-header-text');
     if (headerText) headerText.innerText = 'SOS RECEIVED';
