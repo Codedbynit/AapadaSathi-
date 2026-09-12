@@ -1,10 +1,16 @@
 import os
 from pathlib import Path
+from typing import Optional
 from dotenv import load_dotenv
 
-# Explicitly load from api/.env regardless of where the server is started
-env_path = Path(__file__).parent / ".env"
-load_dotenv(dotenv_path=env_path)
+# Explicitly load environment variables from .env and .env.local files
+for env_name in [".env.local", ".env"]:
+    api_env = Path(__file__).parent / env_name
+    if api_env.exists():
+        load_dotenv(dotenv_path=api_env, override=False)
+    root_env = Path(__file__).parent.parent / env_name
+    if root_env.exists():
+        load_dotenv(dotenv_path=root_env, override=False)
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -73,9 +79,33 @@ async def settlement(settlement_id: str):
     return data
 
 @app.get("/api/firms")
-async def firms(min_lat: float, max_lat: float, min_lon: float, max_lon: float):
+async def firms(
+    min_lat: Optional[float] = None,
+    max_lat: Optional[float] = None,
+    min_lon: Optional[float] = None,
+    max_lon: Optional[float] = None,
+    south: Optional[float] = None,
+    north: Optional[float] = None,
+    west: Optional[float] = None,
+    east: Optional[float] = None,
+    source: str = "VIIRS_NOAA20_NRT",
+    day_range: int = 1
+):
     """Return NASA FIRMS fire detections for the given geographic bounding box.
     This endpoint is *only* for fire data – it is NOT used for flood labeling.
     """
-    data = await get_firms_data(min_lat, max_lat, min_lon, max_lon)
+    final_min_lat = south if south is not None else (min_lat if min_lat is not None else 24.0)
+    final_max_lat = north if north is not None else (max_lat if max_lat is not None else 28.5)
+    final_min_lon = west if west is not None else (min_lon if min_lon is not None else 89.5)
+    final_max_lon = east if east is not None else (max_lon if max_lon is not None else 96.0)
+
+    data = await get_firms_data(
+        min_lat=final_min_lat,
+        max_lat=final_max_lat,
+        min_lon=final_min_lon,
+        max_lon=final_max_lon,
+        source=source,
+        day_range=day_range
+    )
     return data
+
