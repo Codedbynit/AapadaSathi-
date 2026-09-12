@@ -3,14 +3,14 @@
  * Bootstraps components, state listeners, and hash router.
  */
 
-import { HeaderComponent } from './components/header.js';
-import { FooterComponent } from './components/footer.js';
-import { Toast } from './components/toast.js';
-import { SosModal } from './components/sos-modal.js';
-import { Router } from './router.js';
-import { ScrollObserver } from './utils/scroll-observer.js';
-import { state } from './state.js';
-import { CONFIG } from './config.js';
+import { HeaderComponent } from './components/header.js?v=sos_v2';
+import { FooterComponent } from './components/footer.js?v=sos_v2';
+import { Toast } from './components/toast.js?v=sos_v2';
+import { SosModal } from './components/sos-modal.js?v=sos_v2';
+import { Router } from './router.js?v=sos_v2';
+import { ScrollObserver } from './utils/scroll-observer.js?v=sos_v2';
+import { state } from './state.js?v=sos_v2';
+import { CONFIG } from './config.js?v=sos_v2';
 
 class App {
   static init() {
