@@ -67,6 +67,14 @@ export class MapController {
     }
   }
 
+  removeLayerByKey(key) {
+    const layer = this.activeLayers.get(key);
+    if (layer && this.map) {
+      this.map.removeLayer(layer);
+    }
+    this.activeLayers.delete(key);
+  }
+
   clearLayers() {
     this.activeLayers.forEach(layer => {
       if (this.map && layer) this.map.removeLayer(layer);

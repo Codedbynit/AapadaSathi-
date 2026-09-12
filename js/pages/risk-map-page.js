@@ -9,6 +9,7 @@ import { RiskMarkers } from '../maps/risk-markers.js';
 import { loadMapConfig } from '../maps/map-config.js';
 import { Toast } from '../components/toast.js';
 import { TranslationService } from '../services/translation-service.js';
+import { FirmsApi } from '../api/firms-api.js';
 
 export class RiskMapPage {
   static mapController = null;
@@ -139,6 +140,7 @@ await loadMapConfig();
     }
 
     this.renderMarkers(settlements);
+    this.fetchAndRenderFirms();
 
     // If an active settlement is selected, pan to it and open popup
     const target = settlements.find(s => s.id === activeSettlementId);
@@ -149,7 +151,7 @@ await loadMapConfig();
 
   static renderMarkers(settlementsToRender) {
     if (!this.mapController || !this.mapController.map) return;
-    this.mapController.clearLayers();
+    this.mapController.removeLayerByKey('settlement-markers');
 
     const layerGroup = L.featureGroup();
 
@@ -175,6 +177,102 @@ await loadMapConfig();
 
     layerGroup.addTo(this.mapController.map);
     this.mapController.activeLayers.set('settlement-markers', layerGroup);
+  }
+
+  static async fetchAndRenderFirms() {
+    if (!this.mapController || !this.mapController.map) return;
+    this.mapController.removeLayerByKey('firms-markers');
+
+    try {
+      // Default bounding box for Assam testing region (west: 89.5, south: 24.0, east: 96.0, north: 28.5)
+      const res = await FirmsApi.getDetections(89.5, 24.0, 96.0, 28.5);
+
+      if (res.status === 'unavailable') {
+        Toast.show('NASA FIRMS: Unavailable', 'warning', 3000);
+        return;
+      }
+
+      const detections = res.detections || [];
+      if (detections.length === 0) {
+        Toast.show('NASA FIRMS: No detected hotspots in selected area', 'info', 3000);
+        return;
+      }
+
+      Toast.show(`NASA FIRMS: Loaded ${detections.length} active thermal detections`, 'info', 3000);
+
+      const firmsGroup = L.featureGroup();
+
+      detections.forEach(rec => {
+        if (rec.latitude === undefined || rec.latitude === null || rec.longitude === undefined || rec.longitude === null) {
+          return;
+        }
+
+        const iconHtml = `
+          <div class="custom-firms-marker" style="
+            background: #ef4444;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 13px;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
+            cursor: pointer;
+          " aria-label="NASA FIRMS thermal detection">
+            <i class="fa-solid fa-fire-flame-curved"></i>
+          </div>
+        `;
+
+        const icon = L.divIcon({
+          className: 'custom-firms-marker-wrapper',
+          html: iconHtml,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+          popupAnchor: [0, -14]
+        });
+
+        const marker = L.marker([rec.latitude, rec.longitude], { icon });
+
+        const frpText = (rec.frp !== undefined && rec.frp !== null) ? `${rec.frp} MW` : 'N/A';
+        const dayNightText = rec.daynight === 'D' ? 'Day' : (rec.daynight === 'N' ? 'Night' : 'N/A');
+
+        const popupContent = document.createElement('div');
+        popupContent.className = 'map-popup-inner';
+        popupContent.innerHTML = `
+          <div class="map-popup-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:0.4rem; margin-bottom:0.5rem;">
+            <span style="font-weight:800; color:#ef4444; font-size:0.95rem;">
+              <i class="fa-solid fa-fire-flame-curved"></i> NASA FIRMS
+            </span>
+            <span style="font-size:0.72rem; background:#fee2e2; color:#991b1b; padding:0.15rem 0.5rem; border-radius:999px; font-weight:700;">
+              Thermal Detection
+            </span>
+          </div>
+          <div class="map-popup-body" style="font-size:0.83rem; color:#475569; display:flex; flex-direction:column; gap:0.35rem;">
+            <div><strong>Satellite / Source:</strong> ${rec.satellite || 'VIIRS'} (${rec.instrument || 'VIIRS'})</div>
+            <div><strong>Acquisition Date:</strong> ${rec.acq_date || 'N/A'} ${rec.acq_time ? rec.acq_time : ''}</div>
+            <div><strong>Confidence:</strong> ${rec.confidence || 'N/A'}</div>
+            <div><strong>FRP (Fire Power):</strong> ${frpText}</div>
+            <div><strong>Day/Night:</strong> ${dayNightText}</div>
+            <div><strong>Coordinates:</strong> ${rec.latitude.toFixed(4)}°, ${rec.longitude.toFixed(4)}°</div>
+            <div style="margin-top:0.4rem; font-size:0.75rem; color:#94a3b8; border-top:1px solid #f1f5f9; padding-top:0.35rem;">
+              Data Source: NASA FIRMS (EOSDIS)
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent, { maxWidth: 290 });
+        marker.addTo(firmsGroup);
+      });
+
+      firmsGroup.addTo(this.mapController.map);
+      this.mapController.activeLayers.set('firms-markers', firmsGroup);
+    } catch (err) {
+      console.warn('[RiskMapPage] FIRMS rendering error:', err);
+      Toast.show('NASA FIRMS: Unavailable', 'warning', 3000);
+    }
   }
 
   static attachEvents(settlements) {
