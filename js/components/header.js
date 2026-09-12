@@ -5,6 +5,7 @@
 
 import { state } from '../state.js';
 import { TranslationService } from '../services/translation-service.js';
+import { SosModal } from './sos-modal.js';
 
 export class HeaderComponent {
   static render(containerId = 'app-header-container') {
@@ -47,8 +48,14 @@ export class HeaderComponent {
             </a>
           </nav>
 
-          <!-- Header Actions: Admin Button, Emergency Call, Language Selector (EN/HI) -->
+          <!-- Header Actions: SOS Button, Admin Button, Emergency Call, Language Selector -->
           <div class="header-actions">
+            <!-- Emergency SOS Trigger Button -->
+            <button type="button" class="header-sos-btn" id="btn-header-sos" aria-label="Trigger Emergency SOS">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>SOS</span>
+            </button>
+
             <!-- Dedicated Admin Portal Button -->
             <a href="#response-dashboard" class="header-admin-btn ${currentRoute === '#response-dashboard' ? 'active' : ''}" id="btn-header-admin" title="Admin Incident Command Portal">
               <i class="fa-solid fa-lock"></i>
@@ -113,8 +120,11 @@ export class HeaderComponent {
             </a>
           </nav>
 
-          <div style="margin-top:auto; padding-top:1.5rem; border-top:1px solid #e2e8f0;">
-            <a href="tel:112" class="btn btn-danger btn-sm" style="width:100%; justify-content:center; margin-bottom:1rem;">
+          <div style="margin-top:auto; padding-top:1.5rem; border-top:1px solid #e2e8f0; display:flex; flex-direction:column; gap:0.75rem;">
+            <button type="button" class="btn btn-danger btn-sm" id="btn-mobile-sos" style="width:100%; justify-content:center;">
+              <i class="fa-solid fa-triangle-exclamation"></i> EMERGENCY SOS
+            </button>
+            <a href="tel:112" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center;">
               <i class="fa-solid fa-phone"></i> ${TranslationService.t('emergencyHelplineFull', currentLang)}
             </a>
           </div>
@@ -126,6 +136,20 @@ export class HeaderComponent {
   }
 
   static attachEventListeners() {
+    const drawer = document.getElementById('mobile-drawer');
+
+    const sosBtn = document.getElementById('btn-header-sos');
+    if (sosBtn) {
+      sosBtn.addEventListener('click', () => SosModal.open());
+    }
+
+    const mobileSosBtn = document.getElementById('btn-mobile-sos');
+    if (mobileSosBtn) {
+      mobileSosBtn.addEventListener('click', () => {
+        if (drawer) drawer.classList.remove('open');
+        SosModal.open();
+      });
+    }
     const langSelect = document.getElementById('header-lang-select');
     if (langSelect) {
       langSelect.addEventListener('change', (e) => {
@@ -134,7 +158,6 @@ export class HeaderComponent {
     }
 
     const mobileToggle = document.getElementById('btn-mobile-menu');
-    const drawer = document.getElementById('mobile-drawer');
     const drawerClose = document.getElementById('btn-close-drawer');
 
     if (mobileToggle && drawer) {
